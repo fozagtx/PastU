@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Onboarding } from "@/components/Onboarding";
 
 export const metadata = { title: "How it works · Past You" };
@@ -11,10 +10,6 @@ export default function How() {
         <h1 style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.6rem)" }}>Four steps to your first promise</h1>
       </header>
       <Onboarding showConnect={false} />
-      <div className="row" style={{ justifyContent: "center" }}>
-        <Link className="btn" href="/promise/new">Start a promise</Link>
-        <Link className="btn quiet" href="/story">See Maya’s story</Link>
-      </div>
     </div>
   );
 }

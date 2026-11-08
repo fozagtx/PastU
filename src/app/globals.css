@@ -316,3 +316,21 @@ h1 { font-weight: 500; }
 .onbConnect { margin-top: 1.25rem; }
 .hero3Art { margin-top: clamp(.5rem, 2.5vh, 1.5rem); }
 body:has(.storyWide) .siteHeader { max-width: 72rem; }
+
+/* Onboarding cards: identical structure and rhythm. Art, step, title (one line), body, link pinned to the bottom. */
+.onbStep { display: flex; flex-direction: column; gap: 0; padding: 1rem 1.25rem 1.25rem; }
+.onbStep .onbArt { margin-bottom: 1rem; }
+.onbStep .eyebrow { margin-bottom: .35rem; }
+.onbStep h3 { font-size: 1.1rem; line-height: 1.3; white-space: nowrap; margin-bottom: .4rem; }
+.onbStep .onbBody { margin-bottom: 1rem; }
+.onbStep .onbLink { margin-top: auto; }
+.onboarding { --gap: 1.5rem; }
+
+/* Form rhythm: every field is label, control, optional hint, with one even gap between fields. */
+.formFields { display: grid; gap: 1.5rem; align-content: start; }
+.formFields label { margin: 0 0 .45rem; }
+.formFields .hint { margin: .45rem 0 0; font-size: .85rem; color: var(--ink-faint); }
+.formFields .fieldPair { gap: 1rem; }
+.formFields .row { margin-top: .25rem; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-height: 760px) and (min-width: 960px) { .formFields { gap: 1.1rem; } }
