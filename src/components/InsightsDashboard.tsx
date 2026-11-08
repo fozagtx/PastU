@@ -43,7 +43,7 @@ export function DashboardView({ data, promiseId, demo = false }: { data: Insight
         <p className="eyebrow">Your words, beside what happened</p>
         <h1 className="big-serif">Why you saved it, and where it went</h1>
         <p className="muted">Saving reasons next to every attempt to leave. Where money actually went is read from chain when you withdrew. Nothing here judges you.</p>
-        {demo && <p className="notice">Maya’s story — invented example, no wallet or backend involved.</p>}
+        {demo && <p className="notice">DEMO — Maya is invented. This is not your data. Your real dashboard is linked from your promise page.</p>}
         {promiseId && !demo && <p className="faint"><Link href={`/promise/${promiseId}`}>Back to your promise</Link> · <Link href={`/promise/${promiseId}/memory`}>Stored memories</Link></p>}
         {demo && <p className="faint"><Link href="/story">Maya’s story</Link> · <Link href="/promise/new">Make my own promise</Link></p>}
       </header>
