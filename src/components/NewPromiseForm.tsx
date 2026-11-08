@@ -57,45 +57,43 @@ function Form({ relock }: { relock: string | null }) {
   }
 
   return (
-    <form className="page stack stack-lg fade-in" style={{ paddingTop: "2rem" }} onSubmit={submit} noValidate>
-      <header className="stack stack-sm">
+    <form className="page wide formPage fade-in" onSubmit={submit} noValidate>
+      <header className="formIntro stack stack-sm">
         <p className="eyebrow">{relock ? "Starting again" : "A new promise"}</p>
         <h1>{relock ? "Lock a new vault, with your words" : "What are you promising yourself?"}</h1>
+        <p className="muted">Lock some money until a date. If you try to leave early, you wait, and you read what you write below.</p>
+        <div className="notice"><strong>Test version.</strong> The contract is unaudited, so keep amounts small. Max {DEPOSIT_CAP} {COIN_SYMBOL}.</div>
+        <p className="faint">Your words are saved on Walrus. A model (Nebius) only puts your own quotes in order. It never writes for you.</p>
       </header>
 
-      <div className="notice"><strong>Unaudited.</strong> The vault contract has not been audited. This is a demo: please keep amounts small. Deposits are capped at {DEPOSIT_CAP} {COIN_SYMBOL}.</div>
-
-      <div className="stack">
-        <div>
-          <label htmlFor="amount">Amount to lock ({COIN_SYMBOL})</label>
-          <input id="amount" inputMode="decimal" placeholder={`up to ${DEPOSIT_CAP}`} value={amount} onChange={(e) => setAmount(e.target.value)} required />
+      <div className="formFields stack">
+        <div className="fieldPair">
+          <div>
+            <label htmlFor="amount">Amount to lock ({COIN_SYMBOL})</label>
+            <input id="amount" inputMode="decimal" placeholder={`up to ${DEPOSIT_CAP}`} value={amount} onChange={(e) => setAmount(e.target.value)} required />
+          </div>
+          <div>
+            <label htmlFor="date">Unlock date</label>
+            <input id="date" type="date" value={date} min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} required />
+          </div>
         </div>
-        <div>
-          <label htmlFor="date">Unlock date</label>
-          <input id="date" type="date" value={date} min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)} onChange={(e) => setDate(e.target.value)} required />
-          <p className="hint">On this date you can simply withdraw. Before it, leaving early means waiting.</p>
-        </div>
+        <p className="hint" style={{ marginTop: "-.4rem" }}>On the unlock date you can simply withdraw. Before it, leaving early means waiting.</p>
         <div>
           <label htmlFor="wait">If you want out early, you wait</label>
           <select id="wait" value={wait} onChange={(e) => setWait(Number(e.target.value))}>
             {WAITS.map((w) => <option key={w.ms} value={w.ms}>{w.label}</option>)}
           </select>
-          <p className="hint">Emergency? The label “emergency” in the app can’t shorten this wait. The timer is enforced onchain and nobody, including us, can skip it.</p>
+          <p className="hint">The timer is enforced on-chain. Nobody can skip it, not even for an emergency.</p>
         </div>
-        {(
-          <div>
-            <label htmlFor="why">Why does this matter?</label>
-            <textarea id="why" value={why} onChange={(e) => setWhy(e.target.value)} placeholder="In your own words. This is what you’ll hear back, so make it sound like you." maxLength={1200} />
-            <p className="hint">Please don’t include other people’s private details (names, health, finances). Write about you.</p>
-          </div>
-        )}
-      </div>
-
-      <div className="notice">Your words are stored encrypted on Walrus and read by a language model hosted by <strong>Nebius</strong> only to put your own quotes in a helpful order. The model never writes new words for you. You can revoke access later on the memory page.</div>
-
-      {err && <p className="error" role="alert">{err}</p>}
-      <div className="row">
-        <button className="btn" type="submit" disabled={busy}>{busy ? step || "Working…" : relock ? "Lock again" : "Lock it in"}</button>
+        <div>
+          <label htmlFor="why">Why does this matter?</label>
+          <textarea id="why" value={why} onChange={(e) => setWhy(e.target.value)} placeholder="In your own words. This is what you’ll hear back, so make it sound like you." maxLength={1200} style={{ minHeight: "5.5rem" }} />
+          <p className="hint">Write about you, not other people’s private details.</p>
+        </div>
+        {err && <p className="error" role="alert">{err}</p>}
+        <div className="row">
+          <button className="btn" type="submit" disabled={busy}>{busy ? step || "Working…" : relock ? "Lock again" : "Lock it in"}</button>
+        </div>
       </div>
     </form>
   );
