@@ -15,12 +15,17 @@
   <img src="https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white" alt="Next.js">
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" alt="React">
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/Neon-Postgres-00E599?logo=postgresql&logoColor=black" alt="Neon Postgres">
+  <img src="https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white" alt="Vercel">
   <img src="https://img.shields.io/badge/vitest-6E9F18?logo=vitest&logoColor=white" alt="vitest">
 </p>
 
 <p align="center">
   <b>Total Recall hackathon · Consumer Finance Apps · Best Walrus Memory</b> · Testnet first · Contract unaudited
+</p>
+
+<p align="center">
+  <b>Live:</b> <a href="https://pastyou.vercel.app">pastyou.vercel.app</a> · <b>No wallet needed:</b> <a href="https://pastyou.vercel.app/story">Maya’s story</a> · <a href="https://pastyou.vercel.app/how">How it works</a>
 </p>
 
 | |
@@ -146,12 +151,13 @@ The wallet signs every vault transaction. The server holds a delegate key for me
 | --- | --- |
 | **Contract** | Sui Move (2024 edition), one module, no admin key |
 | **App** | Next.js 15 · React 19 · TypeScript 5 (strict) · plain CSS with light and dark themes |
-| **Wallet** | `@mysten/dapp-kit-core` · `@mysten/sui` · sign-in by signed message with a 10-minute window |
+| **Wallet** | `@mysten/dapp-kit-core` · `@mysten/sui` over gRPC (public Sui JSON-RPC is deprecated) · sign-in by signed message with a 10-minute window |
 | **Memory** | [Walrus Memory](https://docs.wal.app/walrus-memory) via `@mysten-incubation/memwal`, one namespace per promise |
-| **Chain data** | [Tatum](https://docs.tatum.io) Sui gRPC, API key sent server-side only |
-| **Model** | [Nebius Token Factory](https://tokenfactory.nebius.com), OpenAI-compatible. Labels urges and orders IDs. Never writes user-visible text. |
-| **Storage** | SQLite via better-sqlite3. Holds no text the user wrote. |
-| **Tooling** | vitest · tsx · Playwright for screenshots |
+| **Chain data** | [Tatum](https://docs.tatum.io) Sui gRPC gateway over native gRPC (`@grpc/grpc-js`), API key sent server-side only |
+| **Model** | [Nebius Token Factory](https://tokenfactory.nebius.com) (`Qwen/Qwen3-30B-A3B-Instruct-2507`), with the Neon AI Gateway as a fallback. Labels urges and orders IDs. Never writes user-visible text. |
+| **Storage** | [Neon](https://neon.com) Postgres via `pg` (pooled URL on Vercel). Schema in `db/schema.sql`, applied by `npm run migrate`. Holds no text the user wrote. |
+| **Hosting** | Vercel. The build runs the migration first. |
+| **Tooling** | vitest on in-memory Postgres (PGlite) · tsx · Playwright for screenshots |
 
 ## Quickstart
 
@@ -161,6 +167,7 @@ Requires Node 20.9+. The Sui CLI is needed only for the contract.
 git clone https://github.com/fozagtx/PastU && cd PastU
 cp .env.example .env.local        # add your secrets; public URLs live in src/lib/config.ts
 npm install
+npm run migrate                   # create tables in your Neon database
 npm run smoke                     # sanity check
 npm run dev                       # http://localhost:3000, try /story first
 ```
@@ -175,12 +182,14 @@ Every value goes in `.env.local` (local) or the Vercel project settings (deploy)
 | --- | --- |
 | `SESSION_SECRET`, `DELEGATE_KEY_SECRET` | Generate two separate secrets: `openssl rand -hex 32` |
 | `TATUM_API_KEY` | Sign up at [dashboard.tatum.io](https://dashboard.tatum.io), create an API key, and copy it. Your **account ID** for the hackathon form is shown in the same dashboard. Use a key that covers the network you run on. |
-| `NEBIUS_API_KEY` | Sign up at [tokenfactory.nebius.com](https://tokenfactory.nebius.com), open the API keys page and create a key. Pick a model from its model list and set `NEBIUS_MODEL` to the exact ID. In account settings, turn on Zero Data Retention, since prompts are stored by default. [API docs](https://docs.tokenfactory.nebius.com/api-reference/introduction.md). |
+| `NEBIUS_API_KEY` | Sign up at [tokenfactory.nebius.com](https://tokenfactory.nebius.com), open the API keys page and create a key. The model ID is a constant in `src/lib/config.ts`. In account settings, turn on Zero Data Retention, since prompts are stored by default. [API docs](https://docs.tokenfactory.nebius.com/api-reference/introduction.md). |
 | `NEXT_PUBLIC_VAULT_PACKAGE_ID` | Printed when you publish the contract: look for `PackageID` under *Published Objects* after `sui client publish`. Testnet and Mainnet have different IDs. |
 | `NEXT_PUBLIC_COIN_TYPE` | Testnet: `0x2::sui::SUI`. Mainnet: the USDC coin type. Confirm it in a Sui explorer (Suiscan) before using real funds; it is still an open item. |
 | Walrus relayer URL | Not an env var. `src/lib/config.ts` picks it from the network: testnet `https://relayer.dev.memwal.ai`, mainnet `https://relayer.memory.walrus.xyz`. See the [Walrus Memory docs](https://docs.wal.app/walrus-memory/sdk/quick-start). |
 | `MEMWAL_AGENT_ID` (hackathon form) | The **delegate public key** of the app's Walrus Memory agent: `21449ed62deff336332aa93e3a7e56d73416a49f3b02c25cca5764242b2bea75`. Users never see or handle it; the app uses one shared agent, set by `MEMWAL_PRIVATE_KEY` and `MEMWAL_ACCOUNT_ID` on the server. |
-| Walrus Memory `packageId` / `registryId` | Listed in the Walrus Memory docs for the network you use. Still an open item; check the [SDK quick start](https://docs.wal.app/walrus-memory/sdk/quick-start) and [headless setup](https://docs.wal.app/walrus-memory/sdk/headless-setup). |
+| `DATABASE_URL` · `DATABASE_URL_UNPOOLED` | Neon: run `neon init` then `neon deploy` in the repo, which writes both into `.env.local`. The pooled URL serves the app; the direct one runs migrations. |
+| `MEMWAL_PRIVATE_KEY` · `MEMWAL_ACCOUNT_ID` | The shared Walrus Memory agent. Create an account and a delegate key at [dev.memwal.ai](https://dev.memwal.ai) (testnet) or [memory.walrus.xyz](https://memory.walrus.xyz) (mainnet). Server-only secrets. |
+| Walrus Memory `packageId` / `registryId` | Served by each relayer at `/config`. Testnet: package `0x0a625e2db2af6f591a4c80a3d8551ddf11656089cc3a20c5e9e7f8fb75b9265c`, registry `0x736aef9906798fca4460490ccdf8e8502ef170122dc26ecae32111b78c6b42dd`. Mainnet: package `0xe7c16fbea0560e7057e2bf7422feaa4fb313749fc69c9e9092fac7a33b81d7f5`, registry `0x8bf82c9e09e36b8d1c38298f68b7cb68e7b8762887e7592add9986d5e9cf199f`. |
 
 ## Testnet runbook
 
@@ -214,13 +223,18 @@ Copy the `PackageID` from the output. The contract compiles and the tests pass. 
 NEXT_PUBLIC_SUI_NETWORK=testnet
 NEXT_PUBLIC_VAULT_PACKAGE_ID=<PackageID>
 NEXT_PUBLIC_COIN_TYPE=0x2::sui::SUI
-NEXT_PUBLIC_DEPOSIT_CAP=100
-TATUM_API_KEY=<optional>
+NEXT_PUBLIC_DEPOSIT_CAP=10
+DATABASE_URL=<neon pooled url>
+DATABASE_URL_UNPOOLED=<neon direct url>
+MEMWAL_PRIVATE_KEY=<delegate private key>
+MEMWAL_ACCOUNT_ID=<walrus memory account id>
+TATUM_API_KEY=<testnet key>
+NEBIUS_API_KEY=<key>
 ```
 
 **5. Try it.** Run `npm run smoke`, then `npm run dev`. Set your wallet (Slush or any Sui wallet) to **Testnet**, claim faucet SUI in it, and walk through `/promise/new` with the 60-second wait. Request an exit, watch the countdown, then cancel or complete it.
 
-**6. Before submitting.** Switch `NEXT_PUBLIC_SUI_NETWORK=mainnet`, publish to Mainnet, set the real coin type and `MEMWAL_RELAYER_URL`, and keep deposits capped. The hackathon needs at least 10 Walrus Memory writes on Mainnet.
+**6. Before submitting.** Switch `NEXT_PUBLIC_SUI_NETWORK=mainnet`, publish to Mainnet, set the real coin type and a mainnet Walrus Memory account (the relayer switches with the network), and keep deposits capped. The hackathon needs at least 10 Walrus Memory writes on Mainnet.
 
 ## Commands
 
@@ -228,10 +242,11 @@ TATUM_API_KEY=<optional>
 | --- | --- |
 | `npm run dev` | Start the app on port 3000 |
 | `npm run build` · `npm start` | Production build and server |
-| `npm test` | vitest: scoring, tags, crypto, LLM fallback, full 3-attempt flow |
+| `npm test` | vitest on in-memory Postgres: scoring, tags, crypto, LLM fallback, full 3-attempt flow. Set `TEST_DATABASE_URL` to run against a throwaway Neon branch. |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run smoke` | Memory write and exact recall; checks Tatum if a key is set |
-| `cd contracts && sui move test` | The 13 Move tests |
+| `npm run migrate` | Apply `db/schema.sql` over the direct Neon URL |
+| `cd contracts && sui move test` | The 14 Move tests |
 
 **Environment variables** (see `.env.example`)
 
@@ -239,17 +254,22 @@ TATUM_API_KEY=<optional>
 | --- | --- |
 | `NEXT_PUBLIC_SUI_NETWORK` | `testnet` (default) or `mainnet`. Drives wallet, Sui client and Tatum URL. |
 | `NEXT_PUBLIC_VAULT_PACKAGE_ID` · `NEXT_PUBLIC_COIN_TYPE` · `NEXT_PUBLIC_DEPOSIT_CAP` | Contract and deposit cap |
-| `SESSION_SECRET` · `DELEGATE_KEY_SECRET` | Required in production unless `MEMORY_MODE=fake` |
-| `MEMORY_MODE` · `MEMWAL_RELAYER_URL` | `fake` or `real`; the Walrus relayer |
+| `SESSION_SECRET` · `DELEGATE_KEY_SECRET` | Required in production |
+| `DATABASE_URL` · `DATABASE_URL_UNPOOLED` | Neon Postgres: pooled for the app, direct for migrations |
+| `MEMWAL_PRIVATE_KEY` · `MEMWAL_ACCOUNT_ID` | Shared Walrus Memory agent. Without them, each wallet gets its own encrypted delegate key that must be registered on a Walrus account. |
 | `TATUM_API_KEY` | Vault state and post-exit findings |
-| `NEBIUS_API_KEY` · `NEBIUS_MODEL` | Optional. Without them the code's order is used. |
-| `DB_PATH` · `FOLLOW_UP_MS` | SQLite file; follow-up delay (default 24h) |
+| `NEBIUS_API_KEY` | Optional. Without it (and without the Neon AI Gateway) the code's order is used. |
+| `NEON_AI_GATEWAY_TOKEN` · `NEON_AI_GATEWAY_BASE_URL` | Optional fallback model provider |
+| `MEMORY_MODE` | `fake` only for offline development and tests; the default is real Walrus Memory |
+| `FOLLOW_UP_MS` | Follow-up delay (default 24h) |
+
+Public endpoints (Walrus relayer and aggregator, Tatum gateway, Nebius base URL) are constants in `src/lib/config.ts`, chosen by network, not environment variables.
 
 ## Demo mode
 
 `/story` (the old `/demo` redirects here) shows the same promise across three attempts with an invented persona, Maya, clearly labelled. The quote order changes visibly between attempts, and a table beside it shows how each reason's rank moves. A 60-second timer drives a disabled Withdraw button.
 
-With `MEMORY_MODE=fake`, the whole app runs on an in-memory store, so the real flow works without keys. Walrus records real write times, so the demo presents learning by attempt number rather than pretending weeks have passed.
+For offline development, `MEMORY_MODE=fake` runs the whole app on an in-memory store, so the flow works without keys. Walrus records real write times, so the demo presents learning by attempt number rather than pretending weeks have passed.
 
 ## Learning logic
 
@@ -291,11 +311,12 @@ PastU/
 │   └── README.md                  # build, test, publish
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx · demo/       # landing and the no-wallet walkthrough
+│   │   ├── page.tsx · story/ · how/ # landing, Maya's story (no wallet), onboarding
 │   │   ├── promise/               # new · [id] · break · past-you · follow-up · memory
 │   │   └── api/                   # auth · account · promises · attempts routes
-│   ├── components/                # Past You screen, countdown, blob links, wallet gate
+│   ├── components/                # Past You screen, onboarding, illustrations, wallet gate
 │   └── lib/
+│       ├── config.ts              # public endpoints and model IDs, by network
 │       ├── types.ts               # shared API contract
 │       ├── client/                # wallet, vault PTBs, typed fetch client
 │       └── server/
@@ -305,10 +326,12 @@ PastU/
 │           ├── tatum.ts           # vault state and post-exit findings
 │           ├── tags.ts            # memory tag format and parsing
 │           ├── crypto.ts          # AES-256-GCM for delegate keys
-│           ├── session.ts · db.ts # signed cookie, SQLite
+│           ├── session.ts · db.ts # signed cookie, Postgres (pg; PGlite in tests)
 │           └── service.ts         # Past You assembly
+├── db/schema.sql                  # tables: users, promises, attempts, habits
 ├── tests/                         # unit and full-flow tests
-├── scripts/smoke.ts               # npm run smoke
+├── scripts/                       # smoke.ts, migrate.ts
+├── neon.ts                        # Neon services for this project
 └── .env.example
 ```
 
@@ -330,7 +353,7 @@ The tests cover:
 - AES-GCM round trip and tamper detection
 - Nebius fallback on bad JSON, unknown IDs, no key and HTTP errors
 - the emergency case showing only the timer
-- that SQLite holds no user-written text
+- that the database holds no user-written text
 
 The Move tests cover `complete_exit` at the exact millisecond and one before, double requests, cancel and re-request, `withdraw` with an exit pending, the wait cap, past unlock dates, deposits during an exit, and payout equal to deposits.
 
@@ -361,7 +384,7 @@ Check `NEXT_PUBLIC_SUI_NETWORK` and the wallet's selected network match.
 `NEXT_PUBLIC_VAULT_PACKAGE_ID` is empty or from another network. Republish and update `.env.local`.
 
 **`SESSION_SECRET is required in production`**
-Set `SESSION_SECRET` and `DELEGATE_KEY_SECRET`, or run with `MEMORY_MODE=fake` for a demo.
+Set `SESSION_SECRET` and `DELEGATE_KEY_SECRET`.
 
 **Sign-in fails with an expired message.**
 The signed message must have an `Issued:` time within the last 10 minutes. Sign in again.
@@ -370,14 +393,22 @@ The signed message must have an `Issued:` time within the last 10 minutes. Sign 
 Order comes from stored decisions and outcomes. Answer the follow-up after each attempt. Without a Nebius key the code's order is used, which is fine.
 
 **Tatum findings say "unavailable".**
-Set `TATUM_API_KEY`. If the key is set, the gateway may not accept grpc-web, which `@mysten/sui`'s client uses.
+Set `TATUM_API_KEY` with a key for the network you run on. The gateway speaks native gRPC, which the server uses through `@grpc/grpc-js`.
+
+**Saving a promise takes about 30 seconds.**
+Each write waits until Walrus Memory confirms it is stored (about 20 to 30 seconds on the testnet relayer), so the receipt is real. API routes allow 60 seconds on Vercel.
+
+**Creating a promise fails with "No Walrus Memory account yet".**
+Set `MEMWAL_PRIVATE_KEY` and `MEMWAL_ACCOUNT_ID` for the shared agent, or register the wallet's delegate key on a Walrus Memory account.
 
 ## Honest scope notes
 
-- **Not run yet:** the Move tests (no Sui CLI in the build sandbox), and the wallet, Walrus, Tatum and Nebius paths against live services. The backend flow is tested on a fake memory store.
+- **Verified on testnet:** the 14 Move tests; the full vault flow (create, deposit, request exit, complete after the 60-second wait) through the app's own transaction builders over gRPC; a Walrus Memory write and exact recall; Tatum balance and transaction reads; Nebius labelling and ordering; the API flow suite on Neon Postgres; and creating a promise and an attempt on the live site.
+- **Not yet clicked through by hand** with a browser wallet: the signed-in screens (promise home, break, follow-up, memory).
+- **Shared agent:** one Walrus Memory agent serves every user, and memories are separated only by promise namespace. Per-user agents need an in-app registration step (the server already generates and encrypts a key per wallet).
+- **Upgrade capability:** the publisher still holds it; burn it or move it to a multisig before real funds.
 - **Re-lock** creates a new promise rather than attaching a new vault to the old one, so history does not carry over yet.
 - **Revoke** removes the app's access to every memory, not one at a time.
-- **JSON-RPC:** the browser reads chain state over JSON-RPC, which Sui has disabled on some Mainnet nodes. Move it to gRPC before the Mainnet switch.
 - **Open:** Mainnet package and coin IDs, Tatum support for `ListTransactions`, `ListEvents` and `ListOwnedObjects`, and the similarity threshold for a "similar urge".
 - **Not in this version:** streaks, badges, price-based promises, trusted contacts, partial exits, native apps, agent payments.
 - **Habit tracking** (one weekly deposit, confirmed through Tatum) is a Should item and only partly built.

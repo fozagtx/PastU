@@ -1,5 +1,7 @@
 # Past You: handoff
 
+> **Update (8 Nov 2026):** most items below are done. Contract published to testnet (14 Move tests pass), app live at https://pastyou.vercel.app on Neon Postgres, real Walrus Memory (testnet relayer, shared agent), Tatum over native gRPC, Nebius ordering, and the browser on Sui gRPC. See README "Honest scope notes" for what is verified and what is open. The list below is kept for history.
+
 Status as of the last push on `claude/funny-maxwell-h7jhyo`. Full stack Next.js 15 (App Router) app plus a Sui Move contract. Read `README.md` for the product and architecture; this file is what remains.
 
 ## What is done
