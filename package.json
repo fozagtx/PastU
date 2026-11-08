@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
+    "@mysten-incubation/memwal": "latest",
     "@mysten/dapp-kit-core": "latest",
     "@mysten/sui": "latest",
-    "@mysten-incubation/memwal": "latest",
     "better-sqlite3": "^11.0.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
@@ -24,6 +25,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   }

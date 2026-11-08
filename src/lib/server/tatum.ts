@@ -12,7 +12,7 @@ function client(): SuiGrpcClient {
   if (!key) throw new Error("TATUM_API_KEY not configured");
   if (cached?.key === key) return cached.client;
   // SuiGrpcClient accepts grpc-web transport options, including request metadata (headers).
-  const c = new SuiGrpcClient({ network: "mainnet", baseUrl: env.tatumUrl, meta: { "x-api-key": key } });
+  const c = new SuiGrpcClient({ network: env.network, baseUrl: env.tatumUrl, meta: { "x-api-key": key } });
   cached = { key, client: c };
   return c;
 }

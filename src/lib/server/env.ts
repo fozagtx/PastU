@@ -13,7 +13,9 @@ export const env = {
   get nebiusModel() { return process.env.NEBIUS_MODEL || ""; },
   get nebiusBase() { return process.env.NEBIUS_BASE_URL || "https://api.tokenfactory.nebius.com/v1/"; },
   get tatumKey() { return process.env.TATUM_API_KEY || ""; },
-  get tatumUrl() { return process.env.TATUM_GRPC_URL || "https://sui-mainnet-grpc.gateway.tatum.io"; },
+  /** Chain the vault lives on. Walrus Memory blobs stay on mainnet regardless (hosted relayer). */
+  get network(): "mainnet" | "testnet" { return process.env.NEXT_PUBLIC_SUI_NETWORK === "mainnet" ? "mainnet" : "testnet"; },
+  get tatumUrl() { return process.env.TATUM_GRPC_URL || `https://sui-${this.network}-grpc.gateway.tatum.io`; },
   get walrusAggregator() { return process.env.WALRUS_AGGREGATOR_URL || "https://aggregator.walrus-mainnet.walrus.space"; },
 };
 

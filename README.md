@@ -19,6 +19,15 @@ npm test && npm run typecheck
 cd contracts && sui move test   # requires the Sui CLI
 ```
 
+## Testnet runbook
+Vault on testnet with free coins; Walrus Memory's hosted relayer is Mainnet-only, so keep `MEMORY_MODE=fake` until you want real writes.
+1. `cd contracts && sui client switch --env testnet && sui client faucet && sui client publish`. Copy the package ID.
+2. `.env.local`: `NEXT_PUBLIC_SUI_NETWORK=testnet`, `NEXT_PUBLIC_VAULT_PACKAGE_ID=<id>`, `NEXT_PUBLIC_COIN_TYPE=0x2::sui::SUI`, `MEMORY_MODE=fake`, plus `TATUM_API_KEY` if you have one.
+3. `npm run smoke` (sanity check), then `npm run dev`; set the wallet to testnet, claim faucet SUI, and walk through `/promise/new` with a 60s wait.
+4. Before submitting, switch to `mainnet`, set the real coin type and relayer URL, and keep deposits capped.
+
+Caveat: the browser reads chain state over JSON-RPC (`getJsonRpcFullnodeUrl`). Sui has disabled JSON-RPC on some Mainnet nodes, so that path may need moving to gRPC before the Mainnet switch.
+
 ## Status / unverified
 - Move tests were written but **not run** (no Sui CLI in the build sandbox).
 - Walrus relayer, Nebius, Tatum gRPC (grpc-web vs native) and wallet flows are untested against live services; the backend flow is tested on a fake memory store (26 tests).
