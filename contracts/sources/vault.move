@@ -150,7 +150,8 @@ public fun request_early_exit<T>(
 public fun cancel_exit<T>(vault: &mut Vault<T>, ctx: &TxContext) {
     assert!(vault.exit_requested_ms.is_some(), ENoExitPending);
     vault.exit_requested_ms = option::none();
-    let reason_blob = std::mem::take(&mut vault.exit_reason_blob);
+    let reason_blob = vault.exit_reason_blob;
+    vault.exit_reason_blob = vector[];
     event::emit(ExitCancelled {
         vault_id: object::id(vault),
         owner: ctx.sender(),
