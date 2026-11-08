@@ -315,3 +315,4 @@ h1 { font-weight: 500; }
 .onbConnect { display: grid; justify-items: center; gap: .5rem; margin-top: .5rem; }
 .onbConnect { margin-top: 1.25rem; }
 .hero3Art { margin-top: clamp(.5rem, 2.5vh, 1.5rem); }
+body:has(.storyWide) .siteHeader { max-width: 72rem; }

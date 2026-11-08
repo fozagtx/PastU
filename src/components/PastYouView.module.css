@@ -1,7 +1,7 @@
 .wrap { padding-top: 1.5rem; }
 .step { margin-bottom: .75rem; }
 .hero { margin: 0 0 1.25rem; }
-.heroQuote { margin: 0; font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.28; letter-spacing: -.005em; text-wrap: balance; }
+.heroQuote { margin: 0; font-size: clamp(1.3rem, 2.3vw, 1.75rem); line-height: 1.28; letter-spacing: -.005em; text-wrap: balance; }
 .cap { margin-top: .75rem; font-size: .95rem; color: var(--ink-soft); }
 .tpl { color: var(--accent); font-family: var(--serif); font-style: italic; }
 .counts { margin-top: .4rem; font-size: .8rem; color: var(--ink-faint); display: flex; gap: .5rem; flex-wrap: wrap; }

@@ -7,11 +7,16 @@
 .on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .on:hover { background: var(--ink); }
 .grid { display: grid; gap: 2.5rem; grid-template-columns: 1fr; }
-@media (min-width: 900px) { .grid { grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 1fr); } .side { position: sticky; top: 1rem; align-self: start; } }
+@media (min-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; } .side { position: sticky; top: 1rem; align-self: start; } }
 .side { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.25rem; display: grid; gap: .75rem; }
-.table { border-collapse: collapse; width: 100%; font-size: .85rem; }
-.table th, .table td { padding: .5rem .35rem; border-bottom: 1px solid var(--line); text-align: center; font-weight: 400; vertical-align: top; }
+.table { border-collapse: collapse; width: 100%; font-size: .88rem; table-layout: fixed; }
+.table thead th:not(:first-child) { width: 2.75rem; }
+.table th, .table td { padding: .45rem .35rem; border-bottom: 1px solid var(--line); text-align: center; font-weight: 400; vertical-align: top; }
 .table th[scope="row"] { text-align: left; color: var(--ink-soft); }
 .table thead th { color: var(--ink-faint); }
 .hi { background: var(--accent-soft); transition: background .4s; }
 .first { font-weight: 700; color: var(--accent); }
+.storyPage:global(.page.wide) { max-width: 72rem; padding-bottom: 1.5rem; }
+/* One line per quote, date underneath. */
+.quote { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); }
+.date { display: block; font-size: .78rem; color: var(--ink-faint); margin-top: .1rem; }

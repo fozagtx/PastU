@@ -23,7 +23,7 @@ export function DemoWalkthrough() {
   const reasons = Array.from(new Map(DEMO_ATTEMPTS.flatMap((a) => a.quotes).map((q) => [q.reasonId, q])).values());
 
   return (
-    <div className="page wide" style={{ paddingTop: "1rem" }}>
+    <div className={`page wide storyWide ${s.storyPage}`} style={{ paddingTop: "1rem" }}>
       <div className={s.topRow}>
         <p className={s.banner}>Maya’s promise: <span className="serif">“{PERSONA.promise}.”</span> <span className="faint">An invented example.</span></p>
         <nav className={s.steps} aria-label="Attempts">
@@ -59,7 +59,7 @@ export function DemoWalkthrough() {
             <tbody>
               {reasons.map((r) => (
                 <tr key={r.reasonId}>
-                  <th scope="row">{r.text.slice(0, 34)}…<br /><span className="faint">{fmtDate(r.date)}</span></th>
+                  <th scope="row"><span className={s.quote} title={r.text}>{r.text}</span><span className={s.date}>{fmtDate(r.date)}</span></th>
                   {DEMO_ATTEMPTS.map((a, n) => {
                     const rank = a.quotes.findIndex((q) => q.reasonId === r.reasonId);
                     return <td key={n} className={n === i ? s.hi : ""}>{rank < 0 ? <span className="faint">–</span> : <span className={rank === 0 ? s.first : ""}>{rank + 1}</span>}</td>;
