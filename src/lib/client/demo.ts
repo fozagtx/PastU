@@ -1,4 +1,4 @@
-import type { PastYouDTO, PastYouQuote, ReasonStat } from "../types";
+import type { InsightsDTO, PastYouDTO, PastYouQuote, ReasonStat } from "../types";
 
 // Everything here is MADE UP: a fictional persona used only by /story.
 export const PERSONA = {
@@ -48,3 +48,34 @@ export const DEMO_ATTEMPTS: PastYouDTO[] = [
     ],
   },
 ];
+
+export const DEMO_INSIGHTS: InsightsDTO = {
+  demo: true,
+  goal: [
+    { text: R.rent.text, date: R.rent.date },
+    { text: R.mum.text, date: R.mum.date },
+    { text: R.trip.text, date: R.trip.date },
+    { text: R.calm.text, date: R.calm.date },
+  ],
+  attempts: [
+    {
+      number: 1, at: "2026-03-14", trigger: "loss",
+      urge: "I lost a client today. I just want a cushion in my account.",
+      result: "held", felt: "fine",
+    },
+    {
+      number: 2, at: "2026-04-02", trigger: "stress",
+      urge: "Everything is too much this week.",
+      result: "held", felt: "fine",
+    },
+    {
+      number: 3, at: "2026-05-06", trigger: "loss",
+      urge: "Another invoice bounced. I need that money back in my account now.",
+      withdrawReason: "I can't face another month like this with nothing behind me.",
+      plan: "Back into my checking account for one month.",
+      result: "exited", felt: "regret",
+      wentTo: "85 USDC went to an exchange within an hour",
+    },
+  ],
+  stats: { attempts: 3, held: 2, exited: 1, regretted: 1, byTrigger: [{ trigger: "loss", count: 2 }, { trigger: "stress", count: 1 }] },
+};

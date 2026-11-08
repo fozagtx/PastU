@@ -1,5 +1,5 @@
 import type {
-  AttemptBody, AttemptResp, AuthBody, AuthResp, CreatePromiseBody, CreatePromiseResp, DecisionBody, DecisionResp, MemoryItemDTO, OutcomeBody, OutcomeResp,
+  AttemptBody, AttemptResp, AuthBody, AuthResp, CreatePromiseBody, CreatePromiseResp, DecisionBody, DecisionResp, InsightsChatBody, InsightsChatResp, InsightsDTO, MemoryItemDTO, OutcomeBody, OutcomeResp,
   PastYouDTO, PromiseDetailDTO, Reason, AccountResp,
 } from "../types";
 
@@ -14,6 +14,8 @@ export const ROUTES = {
   decision: (a: string) => `/api/attempts/${enc(a)}/decision`,
   outcome: (a: string) => `/api/attempts/${enc(a)}/outcome`,
   memories: (id: string) => `/api/promises/${enc(id)}/memories`,
+  insights: (id: string) => `/api/promises/${enc(id)}/insights`,
+  insightsChat: (id: string) => `/api/promises/${enc(id)}/insights/chat`,
   account: () => `/api/account`,
 };
 const enc = encodeURIComponent;
@@ -49,6 +51,8 @@ export const api = {
   decide: (_id: string, a: string, b: DecisionBody) => call<DecisionResp>("POST", ROUTES.decision(a), b),
   outcome: (_id: string, a: string, b: OutcomeBody) => call<OutcomeResp>("POST", ROUTES.outcome(a), b),
   listMemories: (id: string) => call<MemoryItemDTO[]>("GET", ROUTES.memories(id)),
+  getInsights: (id: string) => call<InsightsDTO>("GET", ROUTES.insights(id)),
+  chatInsights: (id: string, b: InsightsChatBody) => call<InsightsChatResp>("POST", ROUTES.insightsChat(id), b),
   /** Creates (or returns) the encrypted delegate key and its public key. Pass accountId once registered. */
   account: (accountId?: string) => call<AccountResp>("POST", ROUTES.account(), accountId ? { accountId } : {}),
   /** Revokes Past You's delegate key for this account (all memories, not one). */

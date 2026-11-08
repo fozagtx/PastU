@@ -28,6 +28,8 @@ function Inner() {
   const [dto, setDto] = useState<PastYouDTO | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState<"keep" | "exit" | null>(null);
+  const [withdrawReason, setWithdrawReason] = useState("");
+  const [plan, setPlan] = useState("");
 
   useEffect(() => {
     if (!attemptId) return;
@@ -58,7 +60,7 @@ function Inner() {
     setBusy("exit"); setErr(null);
     try {
       const out = await run(buildCompleteExit({ vault: promise.currentVaultId, sender: address! }));
-      await api.decide(id, attemptId!, { result: "exited", exitTx: out.digest });
+      await api.decide(id, attemptId!, { result: "exited", exitTx: out.digest, withdrawReason: withdrawReason.trim() || undefined, plan: plan.trim() || undefined });
       const m = loadAttemptMeta(attemptId!); if (m) saveAttemptMeta(attemptId!, { ...m, result: "exited" });
       setActiveAttempt(id, null);
       router.push(`/promise/${id}/follow-up/${encodeURIComponent(attemptId!)}`);
@@ -78,6 +80,18 @@ function Inner() {
         <button className="btn" onClick={keep} disabled={!!busy}>{busy === "keep" ? "Confirm in wallet…" : "Keep my promise"}</button>
         <button className="btn quiet" onClick={leave} disabled={!canWithdraw || !!busy} title={canWithdraw ? "" : "Available when the timer ends"}>{busy === "exit" ? "Confirm in wallet…" : "Withdraw"}</button>
       </div>
+      {canWithdraw && (
+        <div className="stack stack-sm" style={{ marginTop: "1rem" }}>
+          <div>
+            <label htmlFor="wr">Why are you withdrawing? <span className="faint">(optional — saved in your words)</span></label>
+            <textarea id="wr" value={withdrawReason} onChange={(e) => setWithdrawReason(e.target.value)} maxLength={1200} rows={2} />
+          </div>
+          <div>
+            <label htmlFor="plan">Where is the money going? <span className="faint">(optional)</span></label>
+            <input id="plan" value={plan} onChange={(e) => setPlan(e.target.value)} maxLength={300} placeholder="e.g. back to checking, one month" />
+          </div>
+        </div>
+      )}
       </div>
       {vaultError && <p className="error">{vaultError}</p>}
       {err && <p className="error" role="alert">{err}</p>}

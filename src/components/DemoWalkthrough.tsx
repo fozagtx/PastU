@@ -69,7 +69,8 @@ export function DemoWalkthrough() {
             </tbody>
           </table>
           <p className="faint">No scores or badges. The model only reorders; every word shown is exactly what she wrote.</p>
-          <Link href="/promise/new" className="btn quiet" style={{ marginTop: "1rem" }}>Make my own promise</Link>
+          <Link href="/story/insights" className="btn quiet" style={{ marginTop: "1rem" }}>See Maya’s insights + ask about her words</Link>
+          <Link href="/promise/new" className="btn quiet">Make my own promise</Link>
         </aside>
       </div>
     </div>

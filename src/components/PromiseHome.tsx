@@ -28,6 +28,8 @@ function Inner() {
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [active, setActive] = useState<string | null>(null);
+  const [withdrawReason, setWithdrawReason] = useState("");
+  const [plan, setPlan] = useState("");
 
   useEffect(() => { rememberPromise(id); setActive(getActiveAttempt(id)); }, [id]);
   useEffect(() => { if (promise) setReasons(promise.reasons ?? []); }, [promise]);
@@ -55,7 +57,18 @@ function Inner() {
   }
   async function withdraw() {
     setBusy("withdraw"); setErr(null); setMsg(null);
-    try { await run(buildWithdraw({ vault: promise!.currentVaultId!, sender: address! })); setMsg("Withdrawn. Your promise is complete."); await refresh(); }
+    try {
+      await ensureAuth();
+      // Save the moment in your words first, then withdraw. If fields are empty, just withdraw.
+      const urge = withdrawReason.trim() || plan.trim();
+      const attempt = urge ? await api.startAttempt(id, { urge }) : null;
+      const out = await run(buildWithdraw({ vault: promise!.currentVaultId!, sender: address! }));
+      if (attempt) {
+        await api.decide(id, attempt.attemptId, { result: "exited", exitTx: out.digest, withdrawReason: withdrawReason.trim() || undefined, plan: plan.trim() || undefined });
+      }
+      setWithdrawReason(""); setPlan("");
+      setMsg("Withdrawn. Your promise is complete."); await refresh();
+    }
     catch (e2) { setErr(errMsg(e2)); } finally { setBusy(null); }
   }
 
@@ -94,7 +107,7 @@ function Inner() {
           <textarea id="nr" value={newReason} onChange={(e) => setNewReason(e.target.value)} style={{ minHeight: "5rem" }} maxLength={1200} />
           <div><button className="btn quiet" disabled={busy === "reason" || newReason.trim().length < 3}>Add it</button></div>
         </form>
-        <p className="faint"><Link href={`/promise/${id}/memory`}>See everything stored, or revoke access</Link></p>
+        <p className="faint"><Link href={`/promise/${id}/memory`}>See everything stored, or revoke access</Link> · <Link href={`/promise/${id}/insights`}>See why you saved it and where it went</Link></p>
       </section>
 
       <section className="stack stack-sm">
@@ -110,7 +123,17 @@ function Inner() {
 
       <section className="stack">
         {unlocked && !exiting && vault && vault.balance > 0n && (
-          <div><button className="btn" onClick={withdraw} disabled={busy === "withdraw"}>{busy === "withdraw" ? "Confirm in wallet…" : "Withdraw"}</button></div>
+          <div className="stack stack-sm">
+            <div>
+              <label htmlFor="wr2">Why are you withdrawing? <span className="faint">(optional — saved in your words)</span></label>
+              <textarea id="wr2" value={withdrawReason} onChange={(e) => setWithdrawReason(e.target.value)} maxLength={1200} rows={2} />
+            </div>
+            <div>
+              <label htmlFor="plan2">Where is the money going? <span className="faint">(optional)</span></label>
+              <input id="plan2" value={plan} onChange={(e) => setPlan(e.target.value)} maxLength={300} placeholder="e.g. back to checking, one month" />
+            </div>
+            <div><button className="btn" onClick={withdraw} disabled={busy === "withdraw"}>{busy === "withdraw" ? "Confirm in wallet…" : "Withdraw"}</button></div>
+          </div>
         )}
         {!unlocked && !exiting && <div><Link className="btn text" href={`/promise/${id}/break`}>Break promise</Link></div>}
         {promise.attempts > 0 && <p className="faint">You’ve reached for the exit {promise.attempts} time{promise.attempts === 1 ? "" : "s"}. That’s part of the story, not a score.</p>}

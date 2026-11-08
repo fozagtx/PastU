@@ -30,7 +30,7 @@ export interface LlmOpts { fetchImpl?: typeof fetch; apiKey?: string; model?: st
 const labelSchema = z.object({ trigger: z.enum(["loss", "payday", "stress", "boredom", "social", "emergency", "other"]) });
 const orderSchema = z.object({ order: z.array(z.string()).min(1).max(10) });
 
-async function chatJson(system: string, user: string, o: LlmOpts): Promise<unknown | null> {
+export async function chatJson(system: string, user: string, o: LlmOpts): Promise<unknown | null> {
   // Provider order: explicit options (tests), then Nebius, then the Neon AI Gateway. None configured => keyword rules.
   const useNebius = !!(o.apiKey ?? env.nebiusKey) && !!(o.model ?? env.nebiusModel);
   const useNeon = !useNebius && !o.apiKey && !!env.neonAiToken && !!env.neonAiBase;
