@@ -39,9 +39,9 @@ export function requireSession(req: Request): string {
 }
 
 /** 404 (not 403) for other people's promises so ids don't leak. */
-export function requireOwnsPromise(req: Request, promiseId: string): { address: string; promise: PromiseRow } {
+export async function requireOwnsPromise(req: Request, promiseId: string): Promise<{ address: string; promise: PromiseRow }> {
   const address = requireSession(req);
-  const promise = getDb().prepare("SELECT * FROM promises WHERE id = ?").get(promiseId) as PromiseRow | undefined;
+  const promise = await getDb().get<PromiseRow>("SELECT * FROM promises WHERE id = ?", [promiseId]);
   if (!promise || promise.owner !== address) throw new HttpError(404, "Promise not found");
   return { address, promise };
 }
@@ -53,11 +53,11 @@ export function sessionCookieHeader(token: string): string {
 export const clearCookieHeader = () => `${COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
 
 import type { AttemptRow } from "./db";
-export function requireOwnsAttempt(req: Request, attemptId: string): { address: string; promise: PromiseRow; attempt: AttemptRow } {
+export async function requireOwnsAttempt(req: Request, attemptId: string): Promise<{ address: string; promise: PromiseRow; attempt: AttemptRow }> {
   const address = requireSession(req);
   const db = getDb();
-  const attempt = db.prepare("SELECT * FROM attempts WHERE id = ?").get(attemptId) as AttemptRow | undefined;
-  const promise = attempt && (db.prepare("SELECT * FROM promises WHERE id = ?").get(attempt.promise_id) as PromiseRow | undefined);
+  const attempt = await db.get<AttemptRow>("SELECT * FROM attempts WHERE id = ?", [attemptId]);
+  const promise = attempt && (await db.get<PromiseRow>("SELECT * FROM promises WHERE id = ?", [attempt.promise_id]));
   if (!attempt || !promise || promise.owner !== address) throw new HttpError(404, "Attempt not found");
   return { address, promise, attempt };
 }

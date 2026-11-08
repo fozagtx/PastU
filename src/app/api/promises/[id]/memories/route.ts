@@ -9,6 +9,6 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise } = requireOwnsPromise(req, id);
-  return json(await listMemories(getMemoryStore(address), promise.namespace));
+  const { address, promise } = await requireOwnsPromise(req, id);
+  return json(await listMemories(await getMemoryStore(address), promise.namespace));
 });

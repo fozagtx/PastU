@@ -2,9 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "regions": ["iad1"],
+  "buildCommand": "npm run migrate && npm run build",
+  "regions": [
+    "iad1"
+  ],
   "functions": {
-    "src/app/api/**/*.ts": { "maxDuration": 30 }
+    "src/app/api/**/*.ts": {
+      "maxDuration": 60
+    }
   }
 }

@@ -68,8 +68,9 @@ export class MemwalStore implements MemoryStore {
   private async recallAll(ns: string): Promise<StoredMemory[]> {
     const seen = new Map<string, StoredMemory>();
     // The SDK has no tag filter: query by each tag prefix (limit 100) and filter exactly in code.
-    for (const kind of TAG_KINDS) {
-      const r = await this.client.recall({ query: `[${kind}`, limit: 100, namespace: ns, sort: "recent" });
+    // Run the lookups in parallel: sequentially they took about 11s on the testnet relayer.
+    const all = await Promise.all(TAG_KINDS.map(async (kind) => ({ kind, r: await this.client.recall({ query: `[${kind}`, limit: 100, namespace: ns, sort: "recent" }) })));
+    for (const { kind, r } of all) {
       for (const h of r.results) {
         if (!h.text.startsWith(`[${kind}`)) continue;
         if (!seen.has(h.blob_id)) seen.set(h.blob_id, { id: h.blob_id, blobId: h.blob_id, text: h.text, createdAt: h.created_at ?? new Date(0).toISOString() });

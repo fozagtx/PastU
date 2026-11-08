@@ -14,6 +14,6 @@ export const POST = handle(async (req: Request) => {
 });
 
 export const DELETE = handle(async (req: Request) => {
-  deleteAccountKey(requireSession(req));
+  await deleteAccountKey(requireSession(req));
   return json({ ok: true });
 });

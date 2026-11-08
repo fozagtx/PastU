@@ -10,7 +10,7 @@ const Body = z.object({ text: z.string().trim().min(1).max(2000), kind: z.enum([
 
 export const POST = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise } = requireOwnsPromise(req, id);
+  const { address, promise } = await requireOwnsPromise(req, id);
   const body = await parseBody(req, Body);
-  return json(await addReason(getMemoryStore(address), promise.namespace, body.text, body.kind), 201);
+  return json(await addReason(await getMemoryStore(address), promise.namespace, body.text, body.kind), 201);
 });

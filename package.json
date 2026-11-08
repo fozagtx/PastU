@@ -8,21 +8,28 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "smoke": "tsx scripts/smoke.ts"
+    "smoke": "tsx scripts/smoke.ts",
+    "migrate": "tsx --env-file-if-exists=.env.local scripts/migrate.ts"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.7",
     "@mysten-incubation/memwal": "latest",
     "@mysten/dapp-kit-core": "latest",
     "@mysten/sui": "latest",
-    "better-sqlite3": "^11.0.0",
+    "@neon/config": "^1.13.0",
+    "@neon/env": "^2.1.0",
+    "@protobuf-ts/grpc-transport": "^2.11.1",
+    "@vercel/functions": "^3.11.0",
     "next": "^15.0.0",
+    "pg": "^8.23.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.11",
+    "@electric-sql/pglite": "^0.5.15",
     "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tsx": "^4.23.15",

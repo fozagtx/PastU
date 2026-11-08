@@ -1,4 +1,6 @@
 import { SuiGrpcClient } from "@mysten/sui/grpc";
+import { GrpcTransport } from "@protobuf-ts/grpc-transport";
+import { ChannelCredentials } from "@grpc/grpc-js";
 import { env } from "./env";
 import { isFakeMemory } from "./memory";
 import type { VaultInfo } from "../types";
@@ -11,8 +13,13 @@ function client(): SuiGrpcClient {
   const key = env.tatumKey;
   if (!key) throw new Error("TATUM_API_KEY not configured");
   if (cached?.key === key) return cached.client;
-  // SuiGrpcClient accepts grpc-web transport options, including request metadata (headers).
-  const c = new SuiGrpcClient({ network: env.network, baseUrl: env.tatumUrl, meta: { "x-api-key": key } });
+  // Tatum's gateway speaks native gRPC (HTTP/2), not gRPC-web, so use the native transport.
+  const transport = new GrpcTransport({
+    host: `${new URL(env.tatumUrl).host}:443`,
+    channelCredentials: ChannelCredentials.createSsl(),
+    meta: { "x-api-key": key },
+  });
+  const c = new SuiGrpcClient({ network: env.network, transport });
   cached = { key, client: c };
   return c;
 }

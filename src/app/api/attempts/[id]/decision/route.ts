@@ -11,8 +11,8 @@ const Body = z.object({ result: z.enum(["held", "exited"]), exitTx: z.string().m
 
 export const POST = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise, attempt } = requireOwnsAttempt(req, id);
+  const { address, promise, attempt } = await requireOwnsAttempt(req, id);
   const b = await parseBody(req, Body);
-  const r = await recordDecision(getMemoryStore(address), promise, attempt, b.result, b.exitTx);
+  const r = await recordDecision(await getMemoryStore(address), promise, attempt, b.result, b.exitTx);
   return json({ ok: true, result: b.result, ...r } satisfies DecisionResp);
 });

@@ -11,8 +11,8 @@ const Body = z.object({ felt: z.enum(["regret", "fine"]) });
 
 export const POST = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise, attempt } = requireOwnsAttempt(req, id);
+  const { address, promise, attempt } = await requireOwnsAttempt(req, id);
   const b = await parseBody(req, Body);
-  const r = await recordOutcome(getMemoryStore(address), promise, attempt, b.felt);
+  const r = await recordOutcome(await getMemoryStore(address), promise, attempt, b.felt);
   return json({ ok: true, ...r } satisfies OutcomeResp);
 });

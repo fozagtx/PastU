@@ -15,22 +15,22 @@ const Check = z.object({ week: z.number().int().min(1).max(520), digest: z.strin
 /** Configure the weekly habit. */
 export const PUT = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  requireOwnsPromise(req, id);
+  await requireOwnsPromise(req, id);
   const b = await parseBody(req, Set);
-  getDb().prepare(`INSERT INTO habits(id, promise_id, weekly_amount, weekday) VALUES (?,?,?,?)
-    ON CONFLICT(promise_id) DO UPDATE SET weekly_amount = excluded.weekly_amount, weekday = excluded.weekday`)
-    .run(`h-${id}`, id, b.weeklyAmount, b.weekday);
+  await getDb().run(`INSERT INTO habits(id, promise_id, weekly_amount, weekday) VALUES (?,?,?,?)
+    ON CONFLICT(promise_id) DO UPDATE SET weekly_amount = excluded.weekly_amount, weekday = excluded.weekday`,
+    [`h-${id}`, id, b.weeklyAmount, b.weekday]);
   return json({ ok: true, ...b });
 });
 
 /** Record a weekly check from a deposit digest (best effort via Tatum). */
 export const POST = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise } = requireOwnsPromise(req, id);
+  const { address, promise } = await requireOwnsPromise(req, id);
   const b = await parseBody(req, Check);
-  const habit = getDb().prepare("SELECT weekly_amount FROM habits WHERE promise_id = ?").get(id) as { weekly_amount: number } | undefined;
+  const habit = await getDb().get<{ weekly_amount: number }>("SELECT weekly_amount FROM habits WHERE promise_id = ?", [id]);
   if (!habit) throw new HttpError(409, "Set a weekly habit first (PUT)");
   const result = await checkHabitDigest(address, b.digest, promise.coin_type, habit.weekly_amount);
-  const w = await recordHabitCheck(getMemoryStore(address), promise, b.week, result, b.note);
+  const w = await recordHabitCheck(await getMemoryStore(address), promise, b.week, result, b.note);
   return json({ ok: true, week: b.week, result, blobId: w.blobId });
 });

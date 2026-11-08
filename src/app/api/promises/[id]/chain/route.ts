@@ -10,7 +10,7 @@ type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise } = requireOwnsPromise(req, id);
+  const { address, promise } = await requireOwnsPromise(req, id);
   if (!tatumConfigured()) {
     const out: ChainDTO = { vault: null, balances: [], source: isFakeMemory() ? "mock" : "unavailable", error: "TATUM_API_KEY not configured" };
     return json(out);

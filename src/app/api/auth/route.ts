@@ -22,7 +22,7 @@ export const POST = handle(async (req: Request) => {
   } catch {
     throw new HttpError(401, "Invalid signature");
   }
-  upsertUser(body.address);
+  await upsertUser(body.address);
   const { token, expiresAt } = mintSession(body.address);
   const res = json({ address: body.address, expiresAt: new Date(expiresAt).toISOString() } satisfies AuthResp);
   res.headers.append("set-cookie", sessionCookieHeader(token));

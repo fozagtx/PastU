@@ -31,10 +31,13 @@ const labelSchema = z.object({ trigger: z.enum(["loss", "payday", "stress", "bor
 const orderSchema = z.object({ order: z.array(z.string()).min(1).max(10) });
 
 async function chatJson(system: string, user: string, o: LlmOpts): Promise<unknown | null> {
-  const apiKey = o.apiKey ?? env.nebiusKey;
-  const model = o.model ?? env.nebiusModel;
+  // Provider order: explicit options (tests), then Nebius, then the Neon AI Gateway. None configured => keyword rules.
+  const useNebius = !!(o.apiKey ?? env.nebiusKey) && !!(o.model ?? env.nebiusModel);
+  const useNeon = !useNebius && !o.apiKey && !!env.neonAiToken && !!env.neonAiBase;
+  const apiKey = useNeon ? env.neonAiToken : (o.apiKey ?? env.nebiusKey);
+  const model = useNeon ? env.neonAiModel : (o.model ?? env.nebiusModel);
   if (!apiKey || !model) return null;
-  const base = (o.baseUrl ?? env.nebiusBase).replace(/\/?$/, "/");
+  const base = (useNeon ? `${env.neonAiBase}/v1` : (o.baseUrl ?? env.nebiusBase)).replace(/\/?$/, "/");
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), o.timeoutMs ?? 8000);
   try {

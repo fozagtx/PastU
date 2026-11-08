@@ -12,12 +12,12 @@ const Body = z.object({
 
 export const GET = handle(async (req: Request) => {
   const address = requireSession(req);
-  const rows = getDb().prepare("SELECT * FROM promises WHERE owner = ? ORDER BY created_at DESC").all(address) as PromiseRow[];
-  return json(rows.map(toPromiseDTO));
+  const rows = await getDb().all<PromiseRow>("SELECT * FROM promises WHERE owner = ? ORDER BY created_at DESC", [address]);
+  return json(await Promise.all(rows.map(toPromiseDTO)));
 });
 
 export const POST = handle(async (req: Request) => {
   const address = requireSession(req);
   const body = await parseBody(req, Body);
-  return json(await createPromise(getMemoryStore(address), address, body), 201);
+  return json(await createPromise(await getMemoryStore(address), address, body), 201);
 });

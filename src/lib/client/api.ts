@@ -1,6 +1,6 @@
 import type {
   AttemptBody, AttemptResp, AuthBody, AuthResp, CreatePromiseBody, CreatePromiseResp, DecisionBody, DecisionResp, MemoryItemDTO, OutcomeBody, OutcomeResp,
-  PastYouDTO, PromiseDetailDTO, Reason,
+  PastYouDTO, PromiseDetailDTO, Reason, AccountResp,
 } from "../types";
 
 /** Single place to adjust endpoint paths. */
@@ -49,6 +49,8 @@ export const api = {
   decide: (_id: string, a: string, b: DecisionBody) => call<DecisionResp>("POST", ROUTES.decision(a), b),
   outcome: (_id: string, a: string, b: OutcomeBody) => call<OutcomeResp>("POST", ROUTES.outcome(a), b),
   listMemories: (id: string) => call<MemoryItemDTO[]>("GET", ROUTES.memories(id)),
+  /** Creates (or returns) the encrypted delegate key and its public key. Pass accountId once registered. */
+  account: (accountId?: string) => call<AccountResp>("POST", ROUTES.account(), accountId ? { accountId } : {}),
   /** Revokes Past You's delegate key for this account (all memories, not one). */
   revokeAccess: () => call<{ ok: boolean }>("DELETE", ROUTES.account()),
 };

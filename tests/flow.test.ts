@@ -22,7 +22,7 @@ const call = (h: Function, who: string | null, body?: unknown, id?: string, url 
   h(new Request(url, { method: body ? "POST" : "GET", headers: { "content-type": "application/json", ...(who ? { cookie: cookie(who) } : {}) }, body: body ? JSON.stringify(body) : undefined }),
     { params: Promise.resolve({ id }) });
 
-beforeEach(() => { resetDbForTests(); fakeStore().clear(); });
+beforeEach(async () => { await resetDbForTests(); fakeStore().clear(); });
 
 async function setup() {
   const r = await call(createPromise, ME, { vaultId: VAULT, coinType: COIN, reason: "Maya's school fees start in January." });
@@ -61,11 +61,11 @@ describe("account", () => {
     const r2 = await (await call(account, ME, { accountId: VAULT })).json();
     expect(r2.delegatePublicKey).toBe(r1.delegatePublicKey);
     expect(r2.accountId).toBe(VAULT);
-    const row = getDb().prepare("SELECT * FROM users WHERE address = ?").get(ME) as any;
+    const row = (await getDb().get<any>("SELECT * FROM users WHERE address = ?", [ME]))!;
     expect(row.delegate_key_encrypted).toBeTruthy();
     expect(row.delegate_key_encrypted).not.toMatch(/^[0-9a-f]{64}$/);
     expect((await call(delAccount, ME)).status).toBe(200);
-    expect((getDb().prepare("SELECT * FROM users WHERE address = ?").get(ME) as any).delegate_key_encrypted).toBeNull();
+    expect(((await getDb().get<any>("SELECT * FROM users WHERE address = ?", [ME]))!).delegate_key_encrypted).toBeNull();
   });
 });
 
@@ -126,7 +126,7 @@ describe("full 3-attempt demo", () => {
     expect(detail.status).toBe("exiting");
 
     // No user-written text in SQLite.
-    const dump = JSON.stringify(["users", "promises", "attempts", "habits"].map((t) => getDb().prepare(`SELECT * FROM ${t}`).all()));
+    const dump = JSON.stringify(await Promise.all(["users", "promises", "attempts", "habits"].map((t) => getDb().all(`SELECT * FROM ${t}`))));
     for (const s of ["Maya", "treat myself", "lost money", "bored", "Newest reason"]) expect(dump).not.toContain(s);
   });
 

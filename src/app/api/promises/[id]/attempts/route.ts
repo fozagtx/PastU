@@ -10,7 +10,7 @@ const Body = z.object({ urge: z.string().trim().min(1).max(2000) });
 
 export const POST = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise } = requireOwnsPromise(req, id);
+  const { address, promise } = await requireOwnsPromise(req, id);
   const body = await parseBody(req, Body);
-  return json(await createAttempt(getMemoryStore(address), promise, body.urge), 201);
+  return json(await createAttempt(await getMemoryStore(address), promise, body.urge), 201);
 });

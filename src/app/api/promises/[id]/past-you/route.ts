@@ -10,7 +10,7 @@ type Ctx = { params: Promise<{ id: string }> };
 /** ?attempt=<attemptId> optional; defaults to the latest open attempt. */
 export const GET = handle(async (req: Request, ctx: Ctx) => {
   const { id } = await ctx.params;
-  const { address, promise } = requireOwnsPromise(req, id);
-  const attempt = resolveAttemptForPastYou(id, new URL(req.url).searchParams.get("attempt"));
-  return json(await assemblePastYou(getMemoryStore(address), promise, attempt));
+  const { address, promise } = await requireOwnsPromise(req, id);
+  const attempt = await resolveAttemptForPastYou(id, new URL(req.url).searchParams.get("attempt"));
+  return json(await assemblePastYou(await getMemoryStore(address), promise, attempt));
 });
