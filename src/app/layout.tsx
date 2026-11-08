@@ -25,9 +25,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           <SiteHeader />
           <main id="main">{children}</main>
-          <footer className="siteFooter">
-            Test version on Sui testnet. Don’t lock money you can’t afford to lose.
-          </footer>
         </Providers>
       </body>
     </html>

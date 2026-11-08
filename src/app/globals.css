@@ -289,3 +289,6 @@ body:has(.hero3) .siteFooter { text-align: center; }
 h1 { font-weight: 500; }
 @media (min-width: 960px) { .hero3 { height: calc(100dvh - 7.5rem); } }
 .hero3 { padding-bottom: 0; }
+
+/* No site footer: the landing fills the screen below the header. */
+@media (min-width: 960px) { .hero3 { height: calc(100dvh - 4.5rem); } }
