@@ -5,7 +5,7 @@ Status as of the last push on `claude/funny-maxwell-h7jhyo`. Full stack Next.js 
 ## What is done
 - **Contract** `contracts/` (`past_you::vault`): written, 13 tests written. **Never compiled or run.**
 - **Backend** `src/app/api`, `src/lib/server`: all PRD routes, scoring, Nebius fallback, Tatum client, AES-GCM delegate keys, SQLite. 26 vitest tests pass on a fake memory store.
-- **Frontend** `src/app`, `src/components`, `src/lib/client`: all screens plus `/demo` (no wallet or backend needed). `tsc` and `next build` pass.
+- **Frontend** `src/app`, `src/components`, `src/lib/client`: all screens plus `/story` (no wallet or backend needed). `tsc` and `next build` pass.
 - **Config:** `NEXT_PUBLIC_SUI_NETWORK` (default `testnet`), `npm run smoke`, `vercel.json`.
 
 ## Not verified (do these first, in order)
@@ -15,7 +15,7 @@ Status as of the last push on `claude/funny-maxwell-h7jhyo`. Full stack Next.js 
 4. **Real Walrus Memory.** The relayer is Mainnet-only. Run one real write and recall with a delegate key. `MemwalStore` in `src/lib/server/memory.ts` was only type-checked. Unknowns: whether `created_at` is returned (quote dates fall back to epoch), `restore` behaviour, relayer cost in WAL/SUI.
 5. **Tatum.** Check the gateway accepts grpc-web (what `@mysten/sui/grpc` uses). If not, switch `src/lib/server/tatum.ts` to `@grpc/grpc-js`. Test `ListTransactions`, `ListEvents`, `ListOwnedObjects`; fall back to balance diffs if missing. Confirm the testnet endpoint `sui-testnet-grpc.gateway.tatum.io`.
 6. **Nebius.** Confirm the model name (`NEBIUS_MODEL`) and that `response_format: json_object` works. Turn on Zero Data Retention.
-7. **Render the authenticated pages** (promise home, break, past-you, follow-up, memory). Only `/`, `/demo`, `/promise/new` have been screenshotted.
+7. **Render the authenticated pages** (promise home, break, past-you, follow-up, memory). Only `/`, `/story`, `/promise/new` have been screenshotted.
 
 ## Known gaps to build
 - **Re-lock keeps history.** Add an endpoint to attach a new vault to an existing promise (`current_vault_id` update). Today "Lock a new vault" creates a new promise, so the demo's attempt 2 loses its history. This matters for the demo.
@@ -29,10 +29,10 @@ Status as of the last push on `claude/funny-maxwell-h7jhyo`. Full stack Next.js 
 ## Deploying to Vercel (important)
 `vercel.json` is in the repo. **Serverless functions have no persistent disk**, so two things in this app do not work as-is on Vercel:
 - **SQLite** (`DB_PATH`, default `./data/pastyou.db`) is read-only or ephemeral. Setting `DB_PATH=/tmp/pastyou.db` lets it run but data is lost between cold starts. For anything real, move `src/lib/server/db.ts` to Turso/libSQL or Postgres (Neon/Vercel Postgres). Tables: `users`, `promises`, `attempts`, `habits`. No user-written text is stored there.
-- **Fake memory store** (`MEMORY_MODE=fake`) lives in process memory and resets. On Vercel use `MEMORY_MODE=real` with the Walrus relayer, or accept that only `/demo` is reliable.
+- **Fake memory store** (`MEMORY_MODE=fake`) lives in process memory and resets. On Vercel use `MEMORY_MODE=real` with the Walrus relayer, or accept that only `/story` is reliable.
 - `better-sqlite3` is a native module (`serverExternalPackages` is set in `next.config.mjs`). If the Vercel build complains, drop it when you move to a hosted DB.
 
-The static `/demo` page and `/` work on Vercel immediately and are enough for a judge-facing link while the rest is finished.
+The static `/story` page and `/` work on Vercel immediately and are enough for a judge-facing link while the rest is finished.
 
 **Vercel env vars** (Project Settings, never commit): `SESSION_SECRET`, `DELEGATE_KEY_SECRET` (both 32+ random bytes), `NEXT_PUBLIC_SUI_NETWORK`, `NEXT_PUBLIC_VAULT_PACKAGE_ID`, `NEXT_PUBLIC_COIN_TYPE`, `NEXT_PUBLIC_DEPOSIT_CAP`, `MEMORY_MODE`, `MEMWAL_RELAYER_URL`, `TATUM_API_KEY`, `NEBIUS_API_KEY`, `NEBIUS_MODEL`, `DB_PATH` (if staying on SQLite). `NEXT_PUBLIC_*` values are exposed to the browser.
 

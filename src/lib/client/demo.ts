@@ -1,6 +1,6 @@
 import type { PastYouDTO, PastYouQuote, ReasonStat } from "../types";
 
-// Everything here is MADE UP: a fictional persona used only by /demo.
+// Everything here is MADE UP: a fictional persona used only by /story.
 export const PERSONA = {
   name: "Maya",
   note: "Maya is a made-up person. Nothing on this page is real data, and no wallet or backend is involved.",

@@ -160,10 +160,10 @@ git clone https://github.com/fozagtx/PastU && cd PastU
 cp .env.example .env.local        # add your secrets; public URLs live in src/lib/config.ts
 npm install
 npm run smoke                     # sanity check
-npm run dev                       # http://localhost:3000, try /demo first
+npm run dev                       # http://localhost:3000, try /story first
 ```
 
-`/demo` runs the three-attempt story with a made-up persona and needs no wallet or backend.
+`/story` runs the three-attempt story with a made-up persona and needs no wallet or backend.
 
 ## Get your keys and IDs
 
@@ -245,7 +245,7 @@ TATUM_API_KEY=<optional>
 
 ## Demo mode
 
-`/demo` shows the same promise across three attempts with an invented persona, Maya, clearly labelled. The quote order changes visibly between attempts, and a table beside it shows how each reason's rank moves. A 60-second timer drives a disabled Withdraw button.
+`/story` (the old `/demo` redirects here) shows the same promise across three attempts with an invented persona, Maya, clearly labelled. The quote order changes visibly between attempts, and a table beside it shows how each reason's rank moves. A 60-second timer drives a disabled Withdraw button.
 
 With `MEMORY_MODE=fake`, the whole app runs on an in-memory store, so the real flow works without keys. Walrus records real write times, so the demo presents learning by attempt number rather than pretending weeks have passed.
 

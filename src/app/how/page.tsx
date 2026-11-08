@@ -19,7 +19,7 @@ export default function How() {
           <li>An exit timer runs, set by you, enforced onchain. Keep the promise, or leave when it ends.</li>
           <li>Later, you say whether it was the right call. That shapes which of your words come first next time.</li>
         </ol>
-        <div className="row"><Link className="btn" href="/promise/new">Make a promise</Link><Link className="btn quiet" href="/demo">See an example</Link></div>
+        <div className="row"><Link className="btn" href="/promise/new">Make a promise</Link><Link className="btn quiet" href="/story">See Maya’s story</Link></div>
       </section>
     </div>
   );

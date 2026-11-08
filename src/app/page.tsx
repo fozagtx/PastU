@@ -15,7 +15,7 @@ export default function Landing() {
         <p className="faint storyLine">You lock money and write why. If you try to leave early, you wait and read your own words first.</p>
         <div className="row">
           <Link className="btn" href="/promise/new">Start a promise</Link>
-          <Link className="btn quiet" href="/demo">See how it works</Link>
+          <Link className="btn quiet" href="/story">See Maya’s story</Link>
         </div>
         <p className="faint">Free to try. Uses Sui testnet coins, not real money.</p>
         <RememberedPromises />
