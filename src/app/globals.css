@@ -334,3 +334,9 @@ body:has(.storyWide) .siteHeader { max-width: 72rem; }
 .formFields .row { margin-top: .25rem; }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-height: 760px) and (min-width: 960px) { .formFields { gap: 1.1rem; } }
+
+/* Centered pages: the block sits in the middle of the window, one fixed gap between title and content. */
+.centerPage { min-height: calc(100dvh - 4.5rem); display: grid; align-content: center; gap: 2.5rem; padding-top: 1.5rem; padding-bottom: 2.5rem; }
+.centerTitle { text-align: center; font-size: clamp(1.9rem, 3.4vw, 2.6rem); margin: 0; }
+.centerPage .onboarding { --gap: 2rem; }
+.centerPage { padding-top: 2rem; padding-bottom: 2rem; }
