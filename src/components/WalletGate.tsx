@@ -1,15 +1,19 @@
 "use client";
 import type { ReactNode } from "react";
 import { useWallet } from "@/lib/client/wallet";
+import { Onboarding } from "./Onboarding";
 
+/** Not connected yet: show how to get started instead of a bare "connect your wallet". */
 export function WalletGate({ children }: { children: ReactNode }) {
-  const { address, ready } = useWallet();
+  const { address } = useWallet();
   if (!address) {
     return (
-      <div className="page walletGate stack fade-in" style={{ textAlign: "center", justifyItems: "center" }}>
-        <p className="eyebrow">Sign in</p>
-        <h1 className="display" style={{ fontSize: "clamp(2.2rem, 7vw, 3.6rem)" }}>Connect a Sui wallet</h1>
-        <p className="lede">{ready ? "Use the Connect Wallet button at the top. Your wallet is how we know which promises are yours. No email, no password." : "Looking for wallets…"}</p>
+      <div className="page wide stack fade-in" style={{ paddingTop: "1.25rem" }}>
+        <header className="stack stack-sm" style={{ textAlign: "center", justifyItems: "center" }}>
+          <p className="eyebrow">Before your first promise</p>
+          <h1 style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.6rem)" }}>Here’s how it works</h1>
+        </header>
+        <Onboarding />
       </div>
     );
   }

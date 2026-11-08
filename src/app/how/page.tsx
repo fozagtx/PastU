@@ -1,26 +1,20 @@
 import Link from "next/link";
-import { MomentCards } from "@/components/LandingVisuals";
+import { Onboarding } from "@/components/Onboarding";
 
 export const metadata = { title: "How it works · Past You" };
 
 export default function How() {
   return (
-    <div className="page wide stack stack-lg" style={{ paddingTop: "2rem" }}>
-      <header className="stack stack-sm">
-        <p className="eyebrow"><Link href="/">← Back</Link></p>
-        <h1>How Past You works</h1>
+    <div className="page wide stack fade-in" style={{ paddingTop: "1.25rem" }}>
+      <header className="stack stack-sm" style={{ textAlign: "center", justifyItems: "center" }}>
+        <p className="eyebrow">How it works</p>
+        <h1 style={{ fontSize: "clamp(1.9rem, 3.4vw, 2.6rem)" }}>Four steps to your first promise</h1>
       </header>
-      <MomentCards />
-      <section className="stack" style={{ maxWidth: "42rem" }}>
-        <h2>Step by step</h2>
-        <ol className="steps muted">
-          <li>You lock an amount until a date, and write one sentence about why it matters.</li>
-          <li>If you try to leave early, you say what’s going on. Then you see what you once wrote.</li>
-          <li>A timer you chose starts, and nobody can skip it. Keep the promise, or leave when it ends.</li>
-          <li>Later, you say whether it was the right call. That shapes which of your words come first next time.</li>
-        </ol>
-        <div className="row"><Link className="btn" href="/promise/new">Make a promise</Link><Link className="btn quiet" href="/story">See Maya’s story</Link></div>
-      </section>
+      <Onboarding showConnect={false} />
+      <div className="row" style={{ justifyContent: "center" }}>
+        <Link className="btn" href="/promise/new">Start a promise</Link>
+        <Link className="btn quiet" href="/story">See Maya’s story</Link>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HeroMockup } from "@/components/LandingVisuals";
+import { HeroIllustration } from "@/components/Illustrations";
 import { RememberedPromises } from "@/components/RememberedPromises";
 
 /** Pattern from goldsand.fi: badge, serif headline, two pill buttons, product below. */
@@ -13,8 +13,8 @@ export default function Landing() {
         <Link className="btn quiet" href="/story">See Maya’s story</Link>
       </div>
       <RememberedPromises />
-      <div className="hero3Peek fade-in" style={{ animationDelay: ".2s" }} aria-hidden>
-        <HeroMockup />
+      <div className="hero3Art fade-in" style={{ animationDelay: ".2s" }}>
+        <HeroIllustration />
       </div>
     </div>
   );
