@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Transaction } from "@mysten/sui/transactions";
 import { api } from "./api";
 import { NETWORK } from "./config";
-import { fetchVault, VAULT_TYPE_SUFFIX, type VaultState } from "./vault";
+import { fetchVault, VAULT_TYPE_SUFFIX, type CoreReader, type VaultState } from "./vault";
 
 // Loosely-typed handle on the dapp-kit instance (it is created lazily, client-side only).
 type Kit = {
@@ -13,10 +13,11 @@ type Kit = {
   getClient(): RpcClient;
 };
 type ConnState = { isConnected: boolean; account: { address: string } | null };
-type RpcClient = {
-  getObject: (a: { id: string; options: { showContent: boolean } }) => Promise<unknown>;
+type RpcClient = CoreReader & {
   core: { waitForTransaction(a: { digest: string; include: { effects: boolean; objectTypes: boolean } }): Promise<unknown> };
 };
+/** Public Sui fullnodes serve gRPC-web; their JSON-RPC is deprecated. */
+const fullnodeUrl = (network: string) => `https://fullnode.${network}.sui.io:443`;
 
 let readClient: RpcClient | undefined;
 
@@ -42,15 +43,15 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let unsub: (() => void) | undefined; let dead = false;
     (async () => {
-      const [{ createDAppKit }, { SuiJsonRpcClient, getJsonRpcFullnodeUrl }] = await Promise.all([
-        import("@mysten/dapp-kit-core"), import("@mysten/sui/jsonRpc"),
+      const [{ createDAppKit }, { SuiGrpcClient }] = await Promise.all([
+        import("@mysten/dapp-kit-core"), import("@mysten/sui/grpc"),
       ]);
       await import("@mysten/dapp-kit-core/web"); // registers <mysten-dapp-kit-connect-button>
       if (dead) return;
       const k = createDAppKit({
         networks: [NETWORK],
         defaultNetwork: NETWORK,
-        createClient: (network: string) => new SuiJsonRpcClient({ network: network as typeof NETWORK, url: getJsonRpcFullnodeUrl(network as typeof NETWORK) }),
+        createClient: (network: string) => new SuiGrpcClient({ network: network as typeof NETWORK, baseUrl: fullnodeUrl(network) }),
       } as never) as unknown as Kit;
       setKit(k);
       unsub = k.stores.$connection.subscribe((c) => setAddress(c.isConnected && c.account ? c.account.address : null));
@@ -90,8 +91,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   const readVault = useCallback(async (id: string) => {
     // Reads don't need a wallet: use a plain RPC client.
-    const { SuiJsonRpcClient, getJsonRpcFullnodeUrl } = await import("@mysten/sui/jsonRpc");
-    readClient ??= new SuiJsonRpcClient({ network: NETWORK, url: getJsonRpcFullnodeUrl(NETWORK) }) as unknown as RpcClient;
+    const { SuiGrpcClient } = await import("@mysten/sui/grpc");
+    readClient ??= new SuiGrpcClient({ network: NETWORK as "testnet" | "mainnet", baseUrl: fullnodeUrl(NETWORK) }) as unknown as RpcClient;
     return fetchVault(readClient, id);
   }, []);
 

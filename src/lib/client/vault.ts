@@ -12,7 +12,7 @@ export const CALLS = {
   // create<T>(coin, unlock_ms, wait_ms, clock, ctx)
   create: { fn: "create", args: (c: Ctx) => [c.coin!, c.tx.pure.u64(c.unlockMs!), c.tx.pure.u64(c.waitMs!), obj(c, CLOCK_ID)] },
   // deposit<T>(vault, coin, clock, ctx)
-  deposit: { fn: "deposit", args: (c: Ctx) => [obj(c, c.vault!), c.coin!, obj(c, CLOCK_ID)] },
+  deposit: { fn: "deposit", args: (c: Ctx) => [obj(c, c.vault!), c.coin!] }, // Move: deposit(vault, coin, ctx), no clock
   // request_early_exit<T>(vault, reason_blob: vector<u8>, clock)
   requestEarlyExit: { fn: "request_early_exit", args: (c: Ctx) => [obj(c, c.vault!), c.tx.pure.vector("u8", Array.from(c.reasonBlob!)), obj(c, CLOCK_ID)] },
   // cancel_exit<T>(vault)
@@ -93,6 +93,8 @@ const num = (v: unknown): number | null => {
 };
 const pick = (f: Record<string, unknown>, names: string[]) => { for (const n of names) if (n in f) return f[n]; return undefined; };
 
+export type CoreReader = { core: { getObject(a: { objectId: string; include: { json: boolean } }): Promise<unknown> } };
+
 /** Tolerant parser: tweak the key names here if the Move struct differs. */
 export function parseVaultFields(id: string, f: Record<string, unknown>): VaultState {
   const bal = pick(f, ["balance", "locked", "funds"]);
@@ -105,9 +107,10 @@ export function parseVaultFields(id: string, f: Record<string, unknown>): VaultS
   return { id, balance, unlockMs, waitMs, exitReadyMs, raw: f };
 }
 
-export async function fetchVault(client: { getObject: (a: { id: string; options: { showContent: boolean } }) => Promise<unknown> }, id: string): Promise<VaultState> {
-  const res = (await client.getObject({ id, options: { showContent: true } })) as { data?: { content?: { fields?: Record<string, unknown> } } };
-  const fields = res?.data?.content?.fields;
+/** Reads the vault through the client's core API (works over gRPC; public JSON-RPC is deprecated). */
+export async function fetchVault(client: CoreReader, id: string): Promise<VaultState> {
+  const res = (await client.core.getObject({ objectId: id, include: { json: true } })) as { object?: { json?: Record<string, unknown> | null } };
+  const fields = res?.object?.json ?? undefined;
   if (!fields) throw new Error("Could not read the vault from chain.");
   return parseVaultFields(id, fields);
 }
