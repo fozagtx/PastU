@@ -118,3 +118,33 @@ export function WaitWordsIllustration() {
     </svg>
   );
 }
+
+/** A smiling person holding a coin: someone who kept their promise. */
+export function SmileIllustration() {
+  return (
+    <svg viewBox="0 0 200 160" role="img" aria-label="A smiling person holding a coin" className="illo">
+      <circle cx={100} cy={84} r={62} fill={SOFT} />
+      {/* shoulders */}
+      <path d="M48 156 c4 -30 24 -44 52 -44 c28 0 48 14 52 44" fill={PAPER} {...line} />
+      {/* neck */}
+      <path d="M90 104 v10 c4 4 16 4 20 0 v-10" fill={PAPER} {...line} />
+      {/* head */}
+      <circle cx={100} cy={70} r={34} fill={PAPER} {...line} />
+      {/* hair */}
+      <path d="M67 66 c-2 -26 18 -38 38 -36 c18 2 30 14 30 32 c-10 -8 -22 -12 -36 -10 c-12 2 -22 6 -32 14 z" fill={INK} {...line} />
+      {/* eyes: happy arcs */}
+      <path d="M85 74 q5 -6 10 0 M105 74 q5 -6 10 0" fill="none" {...line} strokeWidth={2.5} />
+      {/* smile */}
+      <path d="M88 86 q12 12 24 0" fill="none" {...line} strokeWidth={3} />
+      {/* cheeks */}
+      <circle cx={80} cy={84} r={4} fill={GOLD} />
+      <circle cx={120} cy={84} r={4} fill={GOLD} />
+      {/* coin held up */}
+      <ellipse cx={158} cy={110} rx={18} ry={18} fill={GOLD} {...line} />
+      <ellipse cx={158} cy={110} rx={10} ry={10} fill="none" {...line} strokeWidth={2} />
+      <path d="M140 128 c4 -6 8 -8 12 -8" fill="none" {...line} />
+      <Sparkle x={36} y={40} r={6} />
+      <Sparkle x={176} y={70} r={5} />
+    </svg>
+  );
+}

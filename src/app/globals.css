@@ -340,3 +340,17 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px
 .centerTitle { text-align: center; font-size: clamp(1.9rem, 3.4vw, 2.6rem); margin: 0; }
 .centerPage .onboarding { --gap: 2rem; }
 .centerPage { padding-top: 2rem; padding-bottom: 2rem; }
+
+/* Hero side illustrations: left and right of the headline, wide screens only. */
+.hero3 { position: relative; }
+.heroDecor { display: none; }
+@media (min-width: 1180px) {
+  .heroDecor { display: block; position: absolute; inset: 0; pointer-events: none; }
+  .decor { position: absolute; width: clamp(9.5rem, 12vw, 12.5rem); animation: floaty 7s ease-in-out infinite; }
+  .decor .illo { width: 100%; height: auto; }
+  .decorL1 { left: calc(50% - 50vw + 3rem); top: 6%; transform: rotate(-6deg); }
+  .decorL2 { left: calc(50% - 50vw + 5rem); top: 46%; animation-delay: -2s; }
+  .decorR1 { right: calc(50% - 50vw + 3rem); top: 4%; transform: rotate(5deg); animation-delay: -3.5s; }
+  .decorR2 { right: calc(50% - 50vw + 5rem); top: 46%; animation-delay: -1s; }
+}
+@media (prefers-reduced-motion: reduce) { .decor { animation: none; } }
