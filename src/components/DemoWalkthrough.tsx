@@ -24,27 +24,27 @@ export function DemoWalkthrough() {
 
   return (
     <div className="page wide" style={{ paddingTop: "1rem" }}>
-      <div className={`notice ${s.banner}`}><strong>Made-up example.</strong> {PERSONA.note} Promise: “{PERSONA.promise}.”</div>
-
-      <nav className={s.steps} aria-label="Attempts">
-        {DEMO_ATTEMPTS.map((a, n) => (
-          <button key={n} className={`${s.step} ${n === i ? s.on : ""}`} aria-current={n === i ? "step" : undefined} onClick={() => setI(n)}>
-            Attempt {a.attemptNumber}
-          </button>
-        ))}
-      </nav>
+      <div className={s.topRow}>
+        <p className={s.banner}><strong>Made-up example.</strong> Maya is invented: “{PERSONA.promise}.”</p>
+        <nav className={s.steps} aria-label="Attempts">
+          {DEMO_ATTEMPTS.map((a, n) => (
+            <button key={n} className={`${s.step} ${n === i ? s.on : ""}`} aria-current={n === i ? "step" : undefined} onClick={() => setI(n)}>
+              Attempt {a.attemptNumber}
+            </button>
+          ))}
+        </nav>
+      </div>
 
       <div className={s.grid}>
         <div>
           <PastYouView dto={dto} demo>
             <div className="stack">
-              <p className="muted">Exit timer (a 60 second demo wait):</p>
-              <p className="big-serif num" style={{ fontSize: "2.4rem" }}><Countdown targetMs={endsAt} doneLabel="Timer finished" /></p>
+              <p className="muted">Exit timer · a 60 second demo wait</p>
+              <p className="timer num" style={{ fontSize: "clamp(2.8rem, 9vw, 4.2rem)" }}><Countdown targetMs={endsAt} doneLabel="Timer finished" /></p>
               <div className="row">
                 <button className="btn" onClick={() => setI((i + 1) % DEMO_ATTEMPTS.length)}>Keep my promise</button>
                 <button className="btn quiet" disabled={!done} title={done ? "" : "Available when the timer ends"}>Withdraw</button>
               </div>
-              <p className="faint">In the real app, “Keep my promise” cancels the exit onchain; here it just shows the next attempt.</p>
             </div>
           </PastYouView>
         </div>

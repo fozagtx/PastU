@@ -55,7 +55,7 @@ function Inner() {
       </div>
       {err && <p className="error" role="alert">{err}</p>}
       <div className="row">
-        <button className="btn" disabled={busy}>{busy ? "Working…" : attempt ? "Try the wallet again" : "Continue"}</button>
+        <button className="btn" disabled={busy}>{busy ? "Saving your words to Walrus… up to 30 seconds" : attempt ? "Try the wallet again" : "Continue"}</button>
         <Link className="btn text" href={`/promise/${id}`}>Never mind</Link>
       </div>
     </form>

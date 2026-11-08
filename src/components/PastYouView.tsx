@@ -37,7 +37,11 @@ export function PastYouView({ dto, demo = false, children }: { dto: PastYouDTO; 
         <p className="big-serif fade-in">You haven’t written anything yet, so this one is quiet.</p>
       )}
 
+      {children && <div className={`${s.after} fade-in`} style={{ animationDelay: ".3s" }}>{children}</div>}
+
       {rest.length > 0 && (
+        <details className={s.more}>
+          <summary>More of your words ({rest.length})</summary>
         <ol className={s.rest}>
           {rest.map((q, i) => (
             <li key={q.reasonId} className="fade-in" style={{ animationDelay: `${0.35 + i * 0.2}s` }}>
@@ -46,11 +50,12 @@ export function PastYouView({ dto, demo = false, children }: { dto: PastYouDTO; 
             </li>
           ))}
         </ol>
+        </details>
       )}
 
       {dto.history.length > 0 && (
-        <div className={`${s.history} fade-in`} style={{ animationDelay: ".7s" }}>
-          <h2 className={s.hTitle}>Times before</h2>
+        <details className={`${s.more} ${s.history}`}>
+          <summary>Times before ({dto.history.length})</summary>
           <ul>
             {dto.history.map((h) => (
               <li key={h.number}>
@@ -64,11 +69,10 @@ export function PastYouView({ dto, demo = false, children }: { dto: PastYouDTO; 
               </li>
             ))}
           </ul>
-        </div>
+        </details>
       )}
 
       <p className={`faint ${s.src}`}>Ordered by {dto.orderSource === "llm" ? "a model, from your own history" : "simple rules, from your own history"}. Only your words are ever shown.</p>
-      {children && <div className={`${s.after} fade-in`} style={{ animationDelay: ".9s" }}>{children}</div>}
     </section>
   );
 }

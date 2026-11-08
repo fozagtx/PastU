@@ -49,7 +49,7 @@ function Form({ relock }: { relock: string | null }) {
       await ensureAuth();
       const out = await run(buildCreate({ amount: base, unlockMs: unlock, waitMs: wait, sender: address! }));
       if (!out.createdVaultId) throw new Error(`The vault was created (tx ${out.digest}) but its id couldn’t be read. Open your wallet’s activity to find it.`);
-      setStep("Saving your words…");
+      setStep("Saving your words to Walrus… up to 30 seconds");
       const p = await api.createPromise({ vaultId: out.createdVaultId, coinType: COIN_TYPE, reason: why.trim() });
       rememberPromise(p.id);
       router.push(`/promise/${p.id}`);

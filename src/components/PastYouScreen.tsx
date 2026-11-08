@@ -68,7 +68,7 @@ function Inner() {
   const timer = (
     <div className="stack" role="group" aria-label="Exit timer">
       <p className="muted">{canWithdraw ? "The wait is over. The choice is yours." : "Your exit timer"}</p>
-      <p className="big-serif num" style={{ fontSize: "clamp(2.2rem, 8vw, 3.2rem)" }} role="timer">
+      <p className="timer num" style={{ fontSize: "clamp(2.8rem, 9vw, 4.2rem)" }} role="timer">
         {left == null ? (vaultError ? "—" : "…") : canWithdraw ? "Ready" : fmtDuration(left)}
       </p>
       {vaultError && <p className="error">{vaultError}</p>}

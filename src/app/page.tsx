@@ -1,34 +1,26 @@
 import Link from "next/link";
+import { HeroMockup } from "@/components/LandingVisuals";
 import { RememberedPromises } from "@/components/RememberedPromises";
 
+/** One screen, no scrolling on a laptop: what it is, what to do, and the product. */
 export default function Landing() {
   return (
-    <div className="page stack stack-lg" style={{ paddingTop: "clamp(2rem, 8vw, 5rem)" }}>
-      <section className="stack fade-in">
-        <p className="eyebrow">A savings promise that remembers you</p>
-        <h1 className="big-serif" style={{ fontSize: "clamp(2.2rem, 7vw, 3.8rem)", textWrap: "balance" as never }}>
-          Nobody lectured this person. They just heard from themselves.
-        </h1>
-        <p className="muted" style={{ fontSize: "1.1rem", maxWidth: "34rem" }}>
-          You lock some savings and write down why. When you later try to break the promise, Past You doesn’t scold. It shows you your own words, from your own earlier self, and waits with you.
+    <div className="page wide landing">
+      <section className="landingText fade-in">
+        <p className="eyebrow">A savings lock that talks you out of quitting</p>
+        <h1 className="display">Keep the promise you made to yourself.</h1>
+        <p className="lede">
+          Lock some money until a date and write why it matters. If you try to take it out early, you wait a short timer and read your own words first. No lectures, just you.
         </p>
-        <div className="row" style={{ marginTop: "1.5rem" }}>
-          <Link className="btn" href="/promise/new">Make a promise</Link>
-          <Link className="btn quiet" href="/demo">Watch a made-up example</Link>
+        <div className="row">
+          <Link className="btn" href="/promise/new">Start a promise</Link>
+          <Link className="btn quiet" href="/demo">See how it works</Link>
         </div>
-        <p className="faint">Connect a wallet with the button at the top to begin.</p>
+        <p className="faint">Free to try. Uses Sui testnet coins, not real money.</p>
+        <RememberedPromises />
       </section>
-
-      <RememberedPromises />
-
-      <section className="stack-sm stack">
-        <h2>How it feels</h2>
-        <ol className="stack muted" style={{ paddingLeft: "1.2rem" }}>
-          <li>You lock an amount until a date, and write one sentence about why it matters.</li>
-          <li>If you try to leave early, you say what’s going on. Then you see what you once wrote.</li>
-          <li>An exit timer runs, set by you, enforced onchain. You can keep the promise or leave when it ends.</li>
-          <li>Later, you say whether it was the right call. That shapes which of your words come first next time.</li>
-        </ol>
+      <section className="landingArt fade-in" style={{ animationDelay: ".12s" }}>
+        <HeroMockup />
       </section>
     </div>
   );

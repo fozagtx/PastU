@@ -1,6 +1,8 @@
-.banner { margin-bottom: 1.5rem; }
-.steps { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-.step { font: inherit; background: transparent; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; padding: .5rem 1.1rem; cursor: pointer; min-height: 44px; transition: background .2s, color .2s; }
+.topRow { display: flex; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.banner { font-size: .9rem; color: var(--ink-soft); margin: 0; }
+.banner strong { color: var(--ink); }
+.steps { display: flex; gap: .4rem; flex-wrap: wrap; }
+.step { font: inherit; background: transparent; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 999px; padding: .4rem 1rem; cursor: pointer; min-height: 44px; transition: background .2s, color .2s; }
 .step:hover { background: var(--paper-2); }
 .on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .on:hover { background: var(--ink); }

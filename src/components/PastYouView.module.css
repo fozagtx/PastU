@@ -1,16 +1,19 @@
 .wrap { padding-top: 1.5rem; }
-.step { margin-bottom: 1.5rem; }
-.hero { margin: 0 0 2.5rem; }
-.heroQuote { margin: 0; font-size: clamp(1.8rem, 6vw, 2.9rem); line-height: 1.28; letter-spacing: -.005em; text-wrap: balance; }
-.cap { margin-top: 1.25rem; font-size: .95rem; color: var(--ink-soft); }
+.step { margin-bottom: .75rem; }
+.hero { margin: 0 0 1.25rem; }
+.heroQuote { margin: 0; font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.28; letter-spacing: -.005em; text-wrap: balance; }
+.cap { margin-top: .75rem; font-size: .95rem; color: var(--ink-soft); }
 .tpl { color: var(--accent); font-family: var(--serif); font-style: italic; }
 .counts { margin-top: .4rem; font-size: .8rem; color: var(--ink-faint); display: flex; gap: .5rem; flex-wrap: wrap; }
-.rest { list-style: none; margin: 0 0 2.5rem; padding: 0; display: grid; gap: 1.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+.rest { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; }
 .restQuote { font-family: var(--serif); font-size: 1.25rem; line-height: 1.45; margin-bottom: .25rem; }
-.history { border-top: 1px solid var(--line); padding-top: 1.5rem; margin-bottom: 1.5rem; }
+.history { margin-bottom: .5rem; }
 .hTitle { font-size: 1rem; font-family: var(--sans); font-weight: 500; color: var(--ink-soft); margin-bottom: 1rem; }
 .history ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.1rem; }
 .history li p:nth-of-type(1) { font-family: var(--serif); font-size: 1.05rem; }
 .src { margin-top: 1rem; }
-.after { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.after { margin: 0 0 1.5rem; padding: 1rem 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.more { border-top: 1px solid var(--line); padding: 1rem 0; }
+.more > summary { cursor: pointer; font-weight: 600; color: var(--ink-soft); min-height: 44px; display: flex; align-items: center; }
+.more[open] > summary { margin-bottom: .75rem; }
 .calm { font-family: var(--serif); font-size: 1.5rem; margin: 1rem 0 2rem; }
