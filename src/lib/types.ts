@@ -28,3 +28,20 @@ export interface AttemptResp { attemptId: string; number: number; urgeBlobId: st
 export interface DecisionBody { result: "held" | "exited"; exitTx?: string }
 export interface OutcomeBody { felt: "regret" | "fine" }
 export const WAIT_DEMO_MS = 60_000, WAIT_DEFAULT_MS = 86_400_000, WAIT_MAX_MS = 7 * 86_400_000;
+
+// ---- Additive backend response shapes ----
+export interface AuthResp { address: string; expiresAt: string }
+export interface AccountBody { accountId?: string }
+export interface AccountResp { delegatePublicKey: string; delegateSuiAddress: string; accountId: string | null }
+export interface PromiseDetailDTO extends PromiseDTO { reasons: Reason[] }
+export interface CreatePromiseResp { promise: PromiseDTO; reason: Reason }
+export interface AddReasonBody { text: string; kind?: "promise" | "checkin" }
+export interface MemoryItemDTO {
+  blobId?: string; walrusUrl?: string; kind: "reason" | "urge" | "shown" | "decision" | "outcome" | "habit";
+  attrs: Record<string, string>; text: string; createdAt: string;
+}
+export interface VaultInfo { objectId: string; balance: string | null; coinType: string | null; exitAt: string | null; exitRemainingMs: number | null; raw?: unknown }
+export interface ChainDTO { vault: VaultInfo | null; balances: { coinType: string; balance: string }[]; source: "tatum" | "mock" | "unavailable"; error?: string }
+export interface DecisionResp { ok: true; attemptNumber: number; result: "held" | "exited"; followUpAt: string | null }
+export interface OutcomeResp { ok: true; finding: string; blobId?: string }
+export interface HabitBody { weeklyAmount?: number; weekday?: number; week?: number; digest?: string; note?: string }
