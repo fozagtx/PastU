@@ -292,3 +292,8 @@ h1 { font-weight: 500; }
 
 /* No site footer: the landing fills the screen below the header. */
 @media (min-width: 960px) { .hero3 { height: calc(100dvh - 4.5rem); } }
+
+/* Timer and its actions share one row: no stretched, empty card. */
+.timerRow { display: flex; align-items: flex-end; justify-content: space-between; gap: .75rem 1.5rem; flex-wrap: wrap; }
+.timerRow .eyebrow { margin-bottom: .25rem; }
+.timerNum { font-size: clamp(2.4rem, 5vw, 3.4rem); line-height: 1; }

@@ -67,16 +67,20 @@ function Inner() {
 
   const timer = (
     <div className="stack" role="group" aria-label="Exit timer">
-      <p className="muted">{canWithdraw ? "The wait is over. The choice is yours." : "Your exit timer"}</p>
-      <p className="timer num" style={{ fontSize: "clamp(2.8rem, 9vw, 4.2rem)" }} role="timer">
-        {left == null ? (vaultError ? "—" : "…") : canWithdraw ? "Ready" : fmtDuration(left)}
-      </p>
-      {vaultError && <p className="error">{vaultError}</p>}
-      {err && <p className="error" role="alert">{err}</p>}
+      <div className="timerRow">
+      <div>
+        <p className="eyebrow">{canWithdraw ? "Wait is over" : "Withdraw in"}</p>
+        <p className="timer num timerNum" role="timer">
+          {left == null ? (vaultError ? "—" : "…") : canWithdraw ? "Now" : fmtDuration(left)}
+        </p>
+      </div>
       <div className="row">
         <button className="btn" onClick={keep} disabled={!!busy}>{busy === "keep" ? "Confirm in wallet…" : "Keep my promise"}</button>
         <button className="btn quiet" onClick={leave} disabled={!canWithdraw || !!busy} title={canWithdraw ? "" : "Available when the timer ends"}>{busy === "exit" ? "Confirm in wallet…" : "Withdraw"}</button>
       </div>
+      </div>
+      {vaultError && <p className="error">{vaultError}</p>}
+      {err && <p className="error" role="alert">{err}</p>}
     </div>
   );
 

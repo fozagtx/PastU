@@ -25,7 +25,7 @@ export function DemoWalkthrough() {
   return (
     <div className="page wide" style={{ paddingTop: "1rem" }}>
       <div className={s.topRow}>
-        <p className={s.banner}><strong>Made-up example.</strong> Maya is invented: “{PERSONA.promise}.”</p>
+        <p className={s.banner}>Maya’s promise: <span className="serif">“{PERSONA.promise}.”</span> <span className="faint">An invented example.</span></p>
         <nav className={s.steps} aria-label="Attempts">
           {DEMO_ATTEMPTS.map((a, n) => (
             <button key={n} className={`${s.step} ${n === i ? s.on : ""}`} aria-current={n === i ? "step" : undefined} onClick={() => setI(n)}>
@@ -38,9 +38,11 @@ export function DemoWalkthrough() {
       <div className={s.grid}>
         <div>
           <PastYouView dto={dto} demo>
-            <div className="stack">
-              <p className="muted">Exit timer · a 60 second demo wait</p>
-              <p className="timer num" style={{ fontSize: "clamp(2.8rem, 9vw, 4.2rem)" }}><Countdown targetMs={endsAt} doneLabel="Timer finished" /></p>
+            <div className="timerRow">
+              <div>
+                <p className="eyebrow">Withdraw in</p>
+                <p className="timer num timerNum"><Countdown targetMs={endsAt} doneLabel="Now" /></p>
+              </div>
               <div className="row">
                 <button className="btn" onClick={() => setI((i + 1) % DEMO_ATTEMPTS.length)}>Keep my promise</button>
                 <button className="btn quiet" disabled={!done} title={done ? "" : "Available when the timer ends"}>Withdraw</button>
