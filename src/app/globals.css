@@ -196,9 +196,6 @@ mysten-dapp-kit-connect-button::part(trigger) { border-radius: 999px; }
 .navLink { color: var(--ink-soft); text-decoration: none; font-weight: 600; font-size: .92rem; }
 .navLink:hover { color: var(--ink); }
 @media (max-width: 520px) { .navLink { display: none; } }
-.field { display: grid; gap: .3rem; }
-.fieldHead { display: flex; justify-content: space-between; align-items: center; }
-.fieldVal { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .82rem; background: var(--paper-2); border-radius: 14px; padding: .7rem .9rem; overflow-wrap: anywhere; user-select: all; }
 
 /* Short windows (small laptops, browser chrome): tighten so the landing still fits without scrolling. */
 @media (min-width: 960px) and (max-height: 720px) {

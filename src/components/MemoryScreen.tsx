@@ -34,12 +34,12 @@ function Inner() {
       <header className="stack stack-sm">
         <p className="eyebrow"><Link href={`/promise/${id}`}>← Your promise</Link></p>
         <h1>What’s remembered</h1>
-        <p className="muted">Everything stored for this promise, in your exact words, each with the Walrus receipt where it lives.</p>
+        <p className="muted">Everything you’ve written for this promise, word for word.</p>
       </header>
 
       <section className="card stack stack-sm">
         <h2>Revoke Past You’s access</h2>
-        <p className="muted">Revoking stops Past You from reading your memories from now on. It does <strong>not</strong> erase anything that was already read, and it does not delete the stored blobs on Walrus. Anything a language model has already seen stays seen. This applies to all of your memories, not one at a time.</p>
+        <p className="muted">Revoking stops Past You from reading your words from now on. It does <strong>not</strong> delete what you saved, and anything it already read stays read. It applies to everything, not one item at a time.</p>
         {revoked ? <p className="pill" style={{ justifySelf: "start" }}>Access revoked</p> : confirm ? (
           <div className="row"><button className="btn" onClick={revoke}>Yes, revoke access</button><button className="btn text" onClick={() => setConfirm(false)}>Cancel</button></div>
         ) : <div><button className="btn quiet" onClick={() => setConfirm(true)}>Revoke access</button></div>}
@@ -51,7 +51,7 @@ function Inner() {
           {items.map((m, i) => (
             <li key={m.blobId ?? i} className="card stack stack-sm" style={{ opacity: revoked ? 0.6 : 1 }}>
               <p className="serif" style={{ fontSize: "1.2rem", lineHeight: 1.45 }}>“{m.text}”</p>
-              <p className="faint">{fmtDate(m.createdAt)} · {kindLabel[m.kind] ?? m.kind} · {m.walrusUrl ? <a href={m.walrusUrl} target="_blank" rel="noreferrer">Walrus receipt</a> : <BlobLink blobId={m.blobId} />}</p>
+              <p className="faint">{fmtDate(m.createdAt)} · {kindLabel[m.kind] ?? m.kind} · {m.walrusUrl ? <a href={m.walrusUrl} target="_blank" rel="noreferrer">Stored copy</a> : <BlobLink blobId={m.blobId} />}</p>
             </li>
           ))}
         </ul>

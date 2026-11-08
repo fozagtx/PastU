@@ -49,6 +49,8 @@ The vault contract is live on **Sui testnet**. Anyone can inspect it.
 | Publish transaction | [`7hAvrmXDn4rE7qXCkoJX56kAXndkFk8F3Dju72zqNyKt`](https://suiscan.xyz/testnet/tx/7hAvrmXDn4rE7qXCkoJX56kAXndkFk8F3Dju72zqNyKt) |
 | Publisher | `0xe63a423e9f452defdea24299bdfb09de64c4d3c5c9414cf265f991808ce7858f` |
 | Upgrade capability | `0x1d4429e790222e00884ef8214a0c065acf6463ce6d4587211cd0413a50f93d64` (held by the publisher) |
+| Walrus Memory account | `0x2d18637972623a08617e34ec68867db460a06f27e5d5e8c02b2cb99a000a6070` (testnet) |
+| Walrus Memory agent ID | `21449ed62deff336332aa93e3a7e56d73416a49f3b02c25cca5764242b2bea75` (public key) |
 | Toolchain | Sui CLI 1.73.0, Move edition 2024 |
 | Tests | 14 Move tests pass (`cd contracts && sui move test`) |
 | Status | **Unaudited.** Do not use funds you cannot afford to lose. |
@@ -177,7 +179,7 @@ Every value goes in `.env.local` (local) or the Vercel project settings (deploy)
 | `NEXT_PUBLIC_VAULT_PACKAGE_ID` | Printed when you publish the contract: look for `PackageID` under *Published Objects* after `sui client publish`. Testnet and Mainnet have different IDs. |
 | `NEXT_PUBLIC_COIN_TYPE` | Testnet: `0x2::sui::SUI`. Mainnet: the USDC coin type. Confirm it in a Sui explorer (Suiscan) before using real funds; it is still an open item. |
 | Walrus relayer URL | Not an env var. `src/lib/config.ts` picks it from the network: testnet `https://relayer.dev.memwal.ai`, mainnet `https://relayer.memory.walrus.xyz`. See the [Walrus Memory docs](https://docs.wal.app/walrus-memory/sdk/quick-start). |
-| `MEMWAL_AGENT_ID` (hackathon form) | The **delegate public key** for your demo account. Open **Details** in the app (`/details`) after connecting your wallet: it shows the agent ID with a copy button, and a field for the Walrus Memory account ID you create at the dashboard. |
+| `MEMWAL_AGENT_ID` (hackathon form) | The **delegate public key** of the app's Walrus Memory agent: `21449ed62deff336332aa93e3a7e56d73416a49f3b02c25cca5764242b2bea75`. Users never see or handle it; the app uses one shared agent, set by `MEMWAL_PRIVATE_KEY` and `MEMWAL_ACCOUNT_ID` on the server. |
 | Walrus Memory `packageId` / `registryId` | Listed in the Walrus Memory docs for the network you use. Still an open item; check the [SDK quick start](https://docs.wal.app/walrus-memory/sdk/quick-start) and [headless setup](https://docs.wal.app/walrus-memory/sdk/headless-setup). |
 
 ## Testnet runbook

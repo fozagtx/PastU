@@ -49,7 +49,7 @@ function Form({ relock }: { relock: string | null }) {
       await ensureAuth();
       const out = await run(buildCreate({ amount: base, unlockMs: unlock, waitMs: wait, sender: address! }));
       if (!out.createdVaultId) throw new Error(`The vault was created (tx ${out.digest}) but its id couldn’t be read. Open your wallet’s activity to find it.`);
-      setStep("Saving your words to Walrus… up to 30 seconds");
+      setStep("Saving your words… this can take up to 30 seconds");
       const p = await api.createPromise({ vaultId: out.createdVaultId, coinType: COIN_TYPE, reason: why.trim() });
       rememberPromise(p.id);
       router.push(`/promise/${p.id}`);
@@ -63,7 +63,7 @@ function Form({ relock }: { relock: string | null }) {
         <h1>{relock ? "Lock a new vault, with your words" : "What are you promising yourself?"}</h1>
         <p className="muted">Lock some money until a date. If you try to leave early, you wait, and you read what you write below.</p>
         <div className="notice"><strong>Test version.</strong> The contract is unaudited, so keep amounts small. Max {DEPOSIT_CAP} {COIN_SYMBOL}.</div>
-        <p className="faint">Your words are saved on Walrus. A model (Nebius) only puts your own quotes in order. It never writes for you.</p>
+        <p className="faint">We save your words and only ever show them back to you. Nothing is ever written for you.</p>
       </header>
 
       <div className="formFields stack">
@@ -83,7 +83,7 @@ function Form({ relock }: { relock: string | null }) {
           <select id="wait" value={wait} onChange={(e) => setWait(Number(e.target.value))}>
             {WAITS.map((w) => <option key={w.ms} value={w.ms}>{w.label}</option>)}
           </select>
-          <p className="hint">The timer is enforced on-chain. Nobody can skip it, not even for an emergency.</p>
+          <p className="hint">The wait is locked in. Nobody can skip it, not even us.</p>
         </div>
         <div>
           <label htmlFor="why">Why does this matter?</label>
