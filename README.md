@@ -3,6 +3,12 @@
 **What if the one who talks you out of breaking a savings promise is you, the day you made it?**
 
 <p align="center">
+  <a href="https://sui.io"><img src="https://img.shields.io/badge/Built_on-Sui-4DA2FF?style=for-the-badge&logo=sui&logoColor=white" alt="Built on Sui"></a>
+  <a href="https://www.walrus.xyz"><img src="https://img.shields.io/badge/Memory_on-Walrus-97F0E5?style=for-the-badge&logoColor=black" alt="Memory on Walrus"></a>
+  <a href="https://tatum.io"><img src="https://img.shields.io/badge/Data_via-Tatum-6C47FF?style=for-the-badge" alt="Data via Tatum"></a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Sui-Move-4DA2FF?logo=sui&logoColor=white" alt="Sui Move">
   <img src="https://img.shields.io/badge/Walrus-Memory-97F0E5?logoColor=black" alt="Walrus Memory">
   <img src="https://img.shields.io/badge/Tatum-gRPC-6C47FF" alt="Tatum">
@@ -19,7 +25,7 @@
 
 | |
 | --- |
-| [The problem](#the-problem) · [What it does](#what-past-you-does) · [How it works](#how-it-works) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Quickstart](#quickstart) · [Testnet runbook](#testnet-runbook) · [Commands](#commands) · [Demo mode](#demo-mode) · [Learning logic](#learning-logic) · [Repository layout](#repository-layout) · [Checks](#checks) · [Safety and trust](#safety-and-trust) · [Troubleshooting](#troubleshooting) · [Scope notes](#honest-scope-notes) |
+| [The problem](#the-problem) · [What it does](#what-past-you-does) · [How it works](#how-it-works) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Quickstart](#quickstart) · [Get your keys and IDs](#get-your-keys-and-ids) · [Testnet runbook](#testnet-runbook) · [Commands](#commands) · [Demo mode](#demo-mode) · [Learning logic](#learning-logic) · [Repository layout](#repository-layout) · [Checks](#checks) · [Safety and trust](#safety-and-trust) · [Troubleshooting](#troubleshooting) · [Scope notes](#honest-scope-notes) |
 
 ## The problem
 
@@ -45,17 +51,14 @@ The demo ends on one line: *Nobody lectured this person. They just heard from th
 ## How it works
 
 ```mermaid
-flowchart TD
-    A["State the urge<br/>Says what is happening"] --> B["Save to Walrus<br/>Returns the blob_id"]
-    B --> C["Start the timer<br/>blob_id stored in vault"]
-    C --> D["Past You screen<br/>Your words, best first"]
-    D --> E{"Hold or exit?"}
-    E -->|hold| F["Keep the promise<br/>cancel_exit clears timer"]
-    E -->|exit| G["Exit after the wait<br/>complete_exit pays out"]
-    F --> H["Follow-up<br/>Right call? Tatum checks"]
+%%{init: {'themeVariables': {'fontSize': '13px'}, 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 22, 'padding': 6}}}%%
+flowchart LR
+    A[Urge] --> B[Save to Walrus] --> C[Timer on vault] --> D[Past You screen]
+    D --> E{Hold or exit?}
+    E -->|hold| F[cancel_exit]
+    E -->|exit| G[complete_exit]
+    F --> H[Follow-up + Tatum] --> I[Rescore] --> D
     G --> H
-    H --> I["Rescore reasons<br/>Outcome saved to Walrus"]
-    I -->|next attempt| D
 ```
 
 1. **Promise.** Lock an amount with an unlock date, a wait, and a reason. The reason is stored word for word.
@@ -71,24 +74,21 @@ After the unlock date, `withdraw` works with no wait and no prompts.
 
 The money path and the memory path are separate, so a compromised server can read memories but can't touch funds.
 
+<details>
+<summary><b>Architecture diagram</b> (click to expand)</summary>
+
 ```mermaid
-flowchart TB
-    subgraph Browser
-        P["Next.js pages<br/>Promise, Past You and Memory screens"]
-        W["Sui wallet<br/>Holds the owner key and approves changes"]
-    end
-    subgraph Server
-        API["API routes<br/>Auth and ownership checks<br/>Delegate keys, encrypted"]
-        M["Memory and scoring<br/>Recalls and scores reasons"]
-    end
-    P -->|signed-in calls| API
-    API --> M
-    M -->|delegate key| WM["Walrus Memory<br/>The user's own words, encrypted, in their account"]
-    M -->|NEBIUS_API_KEY| N["Nebius LLM<br/>Labels urges and orders IDs only"]
-    API -->|API key| T["Tatum Sui gRPC<br/>Vault state, deposits, where money went"]
-    T -->|reads| V["Vault on Sui<br/>Holds the money, enforces the wait"]
-    W -->|signs every transaction| V
+%%{init: {'themeVariables': {'fontSize': '13px'}, 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 22, 'padding': 6}}}%%
+flowchart LR
+    W[Wallet] -->|signs every tx| V[(Vault on Sui)]
+    P[Next.js pages] --> API[API routes]
+    API --> M[Memory + scoring]
+    M -->|delegate key| WM[(Walrus Memory)]
+    M --> N[Nebius: label + order IDs]
+    API --> T[Tatum gRPC] -->|reads| V
 ```
+
+</details>
 
 **Vault** (`past_you::vault`). `Vault<T>` has `key` only, so it can't be moved by generic transfer calls.
 
@@ -130,20 +130,61 @@ npm run dev                       # http://localhost:3000, try /demo first
 
 `/demo` runs the three-attempt story with a made-up persona and needs no wallet or backend.
 
+## Get your keys and IDs
+
+Every value goes in `.env.local` (local) or the Vercel project settings (deploy). Never commit them. Only `NEXT_PUBLIC_*` values reach the browser.
+
+| Value | Where to get it |
+| --- | --- |
+| `SESSION_SECRET`, `DELEGATE_KEY_SECRET` | Generate two separate secrets: `openssl rand -hex 32` |
+| `TATUM_API_KEY` | Sign up at [dashboard.tatum.io](https://dashboard.tatum.io), create an API key, and copy it. Your **account ID** for the hackathon form is shown in the same dashboard. Use a key that covers the network you run on. |
+| `NEBIUS_API_KEY` | Sign up at [tokenfactory.nebius.com](https://tokenfactory.nebius.com), open the API keys page and create a key. Pick a model from its model list and set `NEBIUS_MODEL` to the exact ID. In account settings, turn on Zero Data Retention, since prompts are stored by default. [API docs](https://docs.tokenfactory.nebius.com/api-reference/introduction.md). |
+| `NEXT_PUBLIC_VAULT_PACKAGE_ID` | Printed when you publish the contract: look for `PackageID` under *Published Objects* after `sui client publish`. Testnet and Mainnet have different IDs. |
+| `NEXT_PUBLIC_COIN_TYPE` | Testnet: `0x2::sui::SUI`. Mainnet: the USDC coin type. Confirm it in a Sui explorer (Suiscan) before using real funds; it is still an open item. |
+| `MEMWAL_RELAYER_URL` | `https://relayer.memory.walrus.xyz` (Mainnet). See the [Walrus Memory docs](https://docs.wal.app/walrus-memory/sdk/quick-start). |
+| `MEMWAL_AGENT_ID` (hackathon form) | The **delegate public key** for your demo account. The app generates it when a user connects (`POST /api/account`) and the wallet registers it. Read it from that response. |
+| Walrus Memory `packageId` / `registryId` | Listed in the Walrus Memory docs for the network you use. Still an open item; check the [SDK quick start](https://docs.wal.app/walrus-memory/sdk/quick-start) and [headless setup](https://docs.wal.app/walrus-memory/sdk/headless-setup). |
+
 ## Testnet runbook
 
 The vault runs on testnet with free coins. Walrus Memory's hosted relayer is Mainnet-only, so keep `MEMORY_MODE=fake` until you want real writes.
 
-1. Publish the contract:
-   ```bash
-   cd contracts
-   sui client switch --env testnet && sui client faucet
-   sui move test && sui client publish
-   ```
-   Copy the package ID.
-2. Set `.env.local`: `NEXT_PUBLIC_SUI_NETWORK=testnet`, `NEXT_PUBLIC_VAULT_PACKAGE_ID=<id>`, `NEXT_PUBLIC_COIN_TYPE=0x2::sui::SUI`, `MEMORY_MODE=fake`, and `TATUM_API_KEY` if you have one.
-3. Run `npm run dev`, set the wallet to testnet, claim faucet SUI, and walk through `/promise/new` with the 60-second wait.
-4. Before submitting, switch to `mainnet`, set the real coin type and relayer URL, and keep deposits capped.
+**1. Install the Sui CLI.** Follow the [Sui install guide](https://docs.sui.io/guides/developer/getting-started/sui-install) (Homebrew: `brew install sui`, or use `suiup`). Check with `sui --version`.
+
+**2. Point it at testnet and get free coins.**
+
+```bash
+sui client new-env --alias testnet --rpc https://fullnode.testnet.sui.io:443   # skip if it exists
+sui client switch --env testnet
+sui client active-address            # your address
+sui client faucet                    # free test SUI; or use https://faucet.sui.io
+sui client gas                       # confirm you have a balance
+```
+
+**3. Test and publish the contract.**
+
+```bash
+cd contracts
+sui move test                        # all 13 tests should pass
+sui client publish --gas-budget 200000000
+```
+
+Copy the `PackageID` from the output. Fix any compile errors first: the contract has been reviewed by hand but never compiled.
+
+**4. Configure the app.** In `.env.local`:
+
+```bash
+NEXT_PUBLIC_SUI_NETWORK=testnet
+NEXT_PUBLIC_VAULT_PACKAGE_ID=<PackageID>
+NEXT_PUBLIC_COIN_TYPE=0x2::sui::SUI
+NEXT_PUBLIC_DEPOSIT_CAP=100
+MEMORY_MODE=fake
+TATUM_API_KEY=<optional>
+```
+
+**5. Try it.** Run `npm run smoke`, then `npm run dev`. Set your wallet (Slush or any Sui wallet) to **Testnet**, claim faucet SUI in it, and walk through `/promise/new` with the 60-second wait. Request an exit, watch the countdown, then cancel or complete it.
+
+**6. Before submitting.** Switch `NEXT_PUBLIC_SUI_NETWORK=mainnet`, publish to Mainnet, set the real coin type and `MEMWAL_RELAYER_URL`, and keep deposits capped. The hackathon needs at least 10 Walrus Memory writes on Mainnet.
 
 ## Commands
 
