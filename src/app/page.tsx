@@ -2,7 +2,7 @@ import Link from "next/link";
 import { HeroMockup } from "@/components/LandingVisuals";
 import { RememberedPromises } from "@/components/RememberedPromises";
 
-/** Pattern from goldsand.fi: badge, serif headline, two pill buttons, one gray note, product below. */
+/** Pattern from goldsand.fi: badge, serif headline, two pill buttons, product below. */
 export default function Landing() {
   return (
     <div className="page wide hero3">
@@ -12,7 +12,6 @@ export default function Landing() {
         <Link className="btn" href="/promise/new">Start a promise</Link>
         <Link className="btn quiet" href="/story">See Maya’s story</Link>
       </div>
-      <p className="hero3Note fade-in" style={{ animationDelay: ".14s" }}>Free on Sui testnet. No real money.</p>
       <RememberedPromises />
       <div className="hero3Peek fade-in" style={{ animationDelay: ".2s" }} aria-hidden>
         <HeroMockup />
