@@ -129,8 +129,13 @@ mysten-dapp-kit-connect-button {
   --primary: var(--ink); --primary-foreground: var(--paper); --background: var(--card);
   --border: var(--line); --accent: var(--paper-2); --accent-foreground: var(--ink);
   --muted: var(--paper-2); --muted-foreground: var(--ink-soft); --secondary: var(--paper-2); --secondary-foreground: var(--ink);
-  --radius: 999px; font-family: var(--sans); font-weight: 600;
+  --foreground: var(--ink); --card-foreground: var(--ink); --popover: var(--card); --popover-foreground: var(--ink);
+  --input: var(--line); --ring: var(--ink);
+  --radius: 20px; /* inherited by the wallet popup: keep it a normal rounded card, never a pill */
+  font-family: var(--sans); font-weight: 600;
 }
+/* Only the button itself is a pill. */
+mysten-dapp-kit-connect-button::part(trigger) { border-radius: 999px; }
 .walletGate { min-height: 55vh; display: grid; align-content: center; }
 
 /* ---- Landing visuals ---- */
