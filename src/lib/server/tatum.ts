@@ -38,8 +38,15 @@ export async function getVault(objectId: string): Promise<VaultInfo> {
   const j = (object.json ?? {}) as Record<string, unknown>;
   const num = (v: unknown) => (v == null ? null : String(typeof v === "object" && v && "value" in v ? (v as { value: unknown }).value : v));
   const balance = num(j.balance ?? j.principal ?? j.amount);
-  const exit = num(j.exit_at_ms ?? j.exit_ready_ms ?? j.unlock_ms ?? j.exit_time_ms);
-  const exitMs = exit && /^\d+$/.test(exit) ? Number(exit) : null;
+  // Move: exit_requested_ms is Option<u64> (null when none pending); ready = requested + wait_ms.
+  const opt = (v: unknown): number | null => {
+    const x = v && typeof v === "object" && "vec" in v ? (v as { vec: unknown[] }).vec[0] : v;
+    const n = x == null ? NaN : Number(x);
+    return Number.isFinite(n) ? n : null;
+  };
+  const requested = opt(j.exit_requested_ms);
+  const wait = opt(j.wait_ms);
+  const exitMs = requested != null && wait != null ? requested + wait : null;
   const m = /<(.+)>$/.exec(object.type);
   return {
     objectId, balance, coinType: m ? m[1] : null,
