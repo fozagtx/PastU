@@ -64,32 +64,6 @@ function Sparkle({ x, y, r = 7 }: { x: number; y: number; r?: number }) {
   return <path d={`M${x} ${y - r} v${r * 2} M${x - r} ${y} h${r * 2}`} {...line} strokeWidth={2.5} />;
 }
 
-/** Landing hero: a locked jar of savings, your own words, and the wait. */
-export function HeroIllustration() {
-  return (
-    <svg viewBox="0 0 640 300" role="img" aria-label="A locked jar of coins, a note in your own words, and an hourglass" className="illo">
-      <circle cx={330} cy={150} r={128} fill={SOFT} />
-      <ellipse cx={320} cy={286} rx={260} ry={9} fill={SOFT} />
-      {/* coin stack, left */}
-      <Coins cx={120} bottom={284} n={4} />
-      <Coins cx={176} bottom={284} n={2} />
-      {/* jar */}
-      <rect x={252} y={58} width={120} height={20} rx={6} fill={GOLD} {...line} />
-      <path d="M262 78 h100 c14 0 22 10 22 24 v152 c0 16 -10 28 -28 28 h-88 c-18 0 -28 -12 -28 -28 v-152 c0 -14 8 -24 22 -24 z" fill={PAPER} {...line} />
-      <Coins cx={312} bottom={272} n={5} rx={40} ry={11} h={10} />
-      <path d="M262 108 v130" {...line} stroke={SOFT} strokeWidth={6} />
-      <Padlock x={312} y={150} s={1.15} />
-      {/* your words */}
-      <QuoteBubble x={420} y={40} w={180} h={96} />
-      {/* the wait */}
-      <Hourglass x={500} y={176} s={1.05} />
-      <Sparkle x={214} y={70} />
-      <Sparkle x={590} y={176} r={6} />
-      <Sparkle x={70} y={190} r={5} />
-    </svg>
-  );
-}
-
 /** Step 1: a wallet. */
 export function WalletIllustration() {
   return (
