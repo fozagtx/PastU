@@ -2,27 +2,21 @@ import Link from "next/link";
 import { HeroMockup } from "@/components/LandingVisuals";
 import { RememberedPromises } from "@/components/RememberedPromises";
 
-/** One screen, no scrolling on a laptop: what it is, what to do, and the product. */
+/** Pattern from goldsand.fi: badge, serif headline, two pill buttons, one gray note, product below. */
 export default function Landing() {
   return (
-    <div className="page wide landing">
-      <section className="landingText fade-in">
-        <p className="eyebrow">A savings lock that talks you out of quitting</p>
-        <h1 className="display">Keep the promise you made to yourself.</h1>
-        <p className="lede">
-          Maya locked 400 SUI for a year of breathing room. Three weeks in, a bad month made her want it back. Past You showed her what she wrote the day she started. She waited out the timer, and kept her promise.
-        </p>
-        <p className="faint storyLine">You lock money and write why. If you try to leave early, you wait and read your own words first.</p>
-        <div className="row">
-          <Link className="btn" href="/promise/new">Start a promise</Link>
-          <Link className="btn quiet" href="/story">See Maya’s story</Link>
-        </div>
-        <p className="faint">Free to try. Uses Sui testnet coins, not real money.</p>
-        <RememberedPromises />
-      </section>
-      <section className="landingArt fade-in" style={{ animationDelay: ".12s" }}>
+    <div className="page wide hero3">
+      <span className="badge fade-in"><span className="dot" aria-hidden />A savings lock on Sui</span>
+      <h1 className="hero3Title fade-in" style={{ animationDelay: ".05s" }}>Savings that remind you why</h1>
+      <div className="row hero3Cta fade-in" style={{ animationDelay: ".1s" }}>
+        <Link className="btn" href="/promise/new">Start a promise</Link>
+        <Link className="btn quiet" href="/story">See Maya’s story</Link>
+      </div>
+      <p className="hero3Note fade-in" style={{ animationDelay: ".14s" }}>Free on Sui testnet. No real money.</p>
+      <RememberedPromises />
+      <div className="hero3Peek fade-in" style={{ animationDelay: ".2s" }} aria-hidden>
         <HeroMockup />
-      </section>
+      </div>
     </div>
   );
 }
