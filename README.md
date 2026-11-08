@@ -25,7 +25,7 @@
 
 | |
 | --- |
-| [The problem](#the-problem) · [What it does](#what-past-you-does) · [How it works](#how-it-works) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Quickstart](#quickstart) · [Get your keys and IDs](#get-your-keys-and-ids) · [Testnet runbook](#testnet-runbook) · [Commands](#commands) · [Demo mode](#demo-mode) · [Learning logic](#learning-logic) · [Repository layout](#repository-layout) · [Checks](#checks) · [Safety and trust](#safety-and-trust) · [Troubleshooting](#troubleshooting) · [Scope notes](#honest-scope-notes) |
+| [The problem](#the-problem) · [Deployed contract](#deployed-contract) · [What it does](#what-past-you-does) · [How it works](#how-it-works) · [Architecture](#architecture) · [Tech stack](#tech-stack) · [Quickstart](#quickstart) · [Get your keys and IDs](#get-your-keys-and-ids) · [Testnet runbook](#testnet-runbook) · [Commands](#commands) · [Demo mode](#demo-mode) · [Learning logic](#learning-logic) · [Repository layout](#repository-layout) · [Checks](#checks) · [Safety and trust](#safety-and-trust) · [Troubleshooting](#troubleshooting) · [Scope notes](#honest-scope-notes) |
 
 ## The problem
 
@@ -36,6 +36,41 @@ People break savings promises in the moment, when the reason they made them is o
 | Time-locked vault | Delays the withdrawal | Never reminds you why |
 | Commitment or habit app | Tracks streaks, may charge a penalty | Relies on self-report, and doesn't learn what persuades you |
 | **Past You** | Waits, shows your own words, learns what worked | Only protects money placed in the vault |
+
+## Deployed contract
+
+The vault contract is live on **Sui testnet**. Anyone can inspect it.
+
+| | |
+| --- | --- |
+| Network | Sui testnet (chain id `4c78adac`) |
+| Package ID | [`0x40ca229b92486eb521391f2290ff44d992a85e8f60dd1a4dafbbcf52048965a3`](https://suiscan.xyz/testnet/object/0x40ca229b92486eb521391f2290ff44d992a85e8f60dd1a4dafbbcf52048965a3) |
+| Module | `past_you::vault` |
+| Publish transaction | [`7hAvrmXDn4rE7qXCkoJX56kAXndkFk8F3Dju72zqNyKt`](https://suiscan.xyz/testnet/tx/7hAvrmXDn4rE7qXCkoJX56kAXndkFk8F3Dju72zqNyKt) |
+| Publisher | `0xe63a423e9f452defdea24299bdfb09de64c4d3c5c9414cf265f991808ce7858f` |
+| Upgrade capability | `0x1d4429e790222e00884ef8214a0c065acf6463ce6d4587211cd0413a50f93d64` (held by the publisher) |
+| Toolchain | Sui CLI 1.73.0, Move edition 2024 |
+| Tests | 14 Move tests pass (`cd contracts && sui move test`) |
+| Status | **Unaudited.** Do not use funds you cannot afford to lose. |
+
+**What a vault is.** `Vault<T>` is an object owned by whoever created it. It holds a balance, an unlock time and a wait length. It has the `key` ability only, so it cannot be wrapped or handed to another address with `public_transfer`. Only the owner can touch it.
+
+**The rules, in order**
+
+1. `create` locks a coin until `unlock_ms`. The unlock time must be in the future, and the wait can be at most 7 days (`604_800_000` ms).
+2. `deposit` adds more, but is blocked while an exit is pending.
+3. `request_early_exit` starts the cooling-off timer and stores a pointer to the reason you wrote (a Walrus blob id).
+4. `cancel_exit` clears the timer and the reason. You can request again later and the timer starts fresh.
+5. `complete_exit` pays out the full balance once `clock >= requested + wait`. The vault is deleted.
+6. `withdraw` pays out once `clock >= unlock_ms`, even if an exit is pending.
+
+**Errors** (abort codes): `0` unlock in the past, `1` wait too long, `2` exit already pending, `3` no exit pending, `4` exit not ready, `5` still locked.
+
+**Events** the app reads through Tatum: `PromiseCreated`, `Deposited`, `ExitRequested`, `ExitCancelled`, `ExitCompleted`, `Withdrawn`.
+
+**Honest note on admin power.** The contract has no admin function, no pause and no way to move anyone's funds. The publish did, however, create an **upgrade capability** held by the publisher, which lets the publisher ship a new version of the package. Old vaults keep the old rules only if the package is made immutable. Before real funds are used, either burn the capability (`sui::package::make_immutable`) or hand it to a multisig, and say which in this table.
+
+Everything else about the contract is in [`contracts/README.md`](contracts/README.md).
 
 ## What Past You does
 
@@ -122,7 +157,7 @@ Requires Node 20.9+. The Sui CLI is needed only for the contract.
 
 ```bash
 git clone https://github.com/fozagtx/PastU && cd PastU
-cp .env.example .env.local        # MEMORY_MODE=fake works offline
+cp .env.example .env.local        # add your secrets; public URLs live in src/lib/config.ts
 npm install
 npm run smoke                     # sanity check
 npm run dev                       # http://localhost:3000, try /demo first
@@ -141,13 +176,13 @@ Every value goes in `.env.local` (local) or the Vercel project settings (deploy)
 | `NEBIUS_API_KEY` | Sign up at [tokenfactory.nebius.com](https://tokenfactory.nebius.com), open the API keys page and create a key. Pick a model from its model list and set `NEBIUS_MODEL` to the exact ID. In account settings, turn on Zero Data Retention, since prompts are stored by default. [API docs](https://docs.tokenfactory.nebius.com/api-reference/introduction.md). |
 | `NEXT_PUBLIC_VAULT_PACKAGE_ID` | Printed when you publish the contract: look for `PackageID` under *Published Objects* after `sui client publish`. Testnet and Mainnet have different IDs. |
 | `NEXT_PUBLIC_COIN_TYPE` | Testnet: `0x2::sui::SUI`. Mainnet: the USDC coin type. Confirm it in a Sui explorer (Suiscan) before using real funds; it is still an open item. |
-| `MEMWAL_RELAYER_URL` | `https://relayer.memory.walrus.xyz` (Mainnet). See the [Walrus Memory docs](https://docs.wal.app/walrus-memory/sdk/quick-start). |
-| `MEMWAL_AGENT_ID` (hackathon form) | The **delegate public key** for your demo account. The app generates it when a user connects (`POST /api/account`) and the wallet registers it. Read it from that response. |
+| Walrus relayer URL | Not an env var. `src/lib/config.ts` picks it from the network: testnet `https://relayer.dev.memwal.ai`, mainnet `https://relayer.memory.walrus.xyz`. See the [Walrus Memory docs](https://docs.wal.app/walrus-memory/sdk/quick-start). |
+| `MEMWAL_AGENT_ID` (hackathon form) | The **delegate public key** for your demo account. Open **Details** in the app (`/details`) after connecting your wallet: it shows the agent ID with a copy button, and a field for the Walrus Memory account ID you create at the dashboard. |
 | Walrus Memory `packageId` / `registryId` | Listed in the Walrus Memory docs for the network you use. Still an open item; check the [SDK quick start](https://docs.wal.app/walrus-memory/sdk/quick-start) and [headless setup](https://docs.wal.app/walrus-memory/sdk/headless-setup). |
 
 ## Testnet runbook
 
-The vault runs on testnet with free coins. Walrus Memory's hosted relayer is Mainnet-only, so keep `MEMORY_MODE=fake` until you want real writes.
+The vault runs on testnet with free coins, and Walrus Memory has a hosted testnet relayer (`https://relayer.dev.memwal.ai`, dashboard `dev.memwal.ai`), so the whole app can run on testnet. The app picks the relayer from `NEXT_PUBLIC_SUI_NETWORK`. For offline work only, set `MEMORY_MODE=fake`.
 
 **1. Install the Sui CLI.** Follow the [Sui install guide](https://docs.sui.io/guides/developer/getting-started/sui-install) (Homebrew: `brew install sui`, or use `suiup`). Check with `sui --version`.
 
@@ -165,11 +200,11 @@ sui client gas                       # confirm you have a balance
 
 ```bash
 cd contracts
-sui move test                        # all 13 tests should pass
+sui move test                        # all 14 tests should pass
 sui client publish --gas-budget 200000000
 ```
 
-Copy the `PackageID` from the output. Fix any compile errors first: the contract has been reviewed by hand but never compiled.
+Copy the `PackageID` from the output. The contract compiles and the tests pass. This repo is already published; see [Deployed contract](#deployed-contract).
 
 **4. Configure the app.** In `.env.local`:
 
@@ -178,7 +213,6 @@ NEXT_PUBLIC_SUI_NETWORK=testnet
 NEXT_PUBLIC_VAULT_PACKAGE_ID=<PackageID>
 NEXT_PUBLIC_COIN_TYPE=0x2::sui::SUI
 NEXT_PUBLIC_DEPOSIT_CAP=100
-MEMORY_MODE=fake
 TATUM_API_KEY=<optional>
 ```
 
@@ -251,7 +285,7 @@ A new reason starts at 0.5, so it gets tried. The weights are starting values to
 PastU/
 ├── contracts/
 │   ├── sources/vault.move         # past_you::vault
-│   ├── tests/vault_tests.move     # 13 tests: boundaries, caps, payout
+│   ├── tests/vault_tests.move     # 14 tests: boundaries, caps, payout
 │   └── README.md                  # build, test, publish
 ├── src/
 │   ├── app/
@@ -302,7 +336,7 @@ The Move tests cover `complete_exit` at the exact millisecond and one before, do
 
 The app can slow someone down, but it must never trap them, shame them or misrepresent what they said.
 
-- **Money stays reachable.** No admin key, and the wait can't exceed 7 days.
+- **Money stays reachable.** No admin function in the contract, and the wait can't exceed 7 days. The publisher still holds an upgrade capability; see [Deployed contract](#deployed-contract).
 - **Emergencies get no argument.** If the urge is labelled emergency, or mentions health or safety, the screen shows only the timer. The label can't shorten the onchain wait, and the app says so at promise time.
 - **Quotes are exact.** Only stored text appears in quote styling.
 - **No shame.** Templates report what happened and never scold.
