@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type {
-  AttemptResp, MemoryItemDTO, PastAttempt, PastYouDTO, PastYouQuote, PromiseDTO, Reason, Trigger,
+  AttemptResp, InsightAttempt, InsightsDTO, MemoryItemDTO, PastAttempt, PastYouDTO, PastYouQuote, PromiseDTO, Reason, Trigger,
 } from "../types";
 import { getDb, type AttemptRow, type PromiseRow } from "./db";
 import { applyOrder, computeStats, rankReasons, templateFor, type AttemptFacts } from "./scoring";
@@ -25,6 +25,7 @@ export interface AttemptMem {
   number: number; trigger: Trigger; urge: string; at: string; blobId?: string;
   shown?: { reasons: string[]; src: "llm" | "code" };
   result?: "held" | "exited"; felt?: "regret" | "fine"; finding?: string;
+  withdrawReason?: string; plan?: string;
 }
 export interface PromiseMem { tagged: Tagged[]; reasons: Reason[]; attempts: Map<number, AttemptMem> }
 
@@ -60,6 +61,16 @@ export async function loadPromiseMem(store: MemoryStore, ns: string): Promise<Pr
       case "outcome": {
         const at = get(n);
         if (at && !at.felt && (a.felt === "regret" || a.felt === "fine")) { at.felt = a.felt; at.finding = tag.text; }
+        break;
+      }
+      case "withdraw": {
+        const at = get(n);
+        if (at && !at.withdrawReason && tag.text) at.withdrawReason = tag.text;
+        break;
+      }
+      case "plan": {
+        const at = get(n);
+        if (at && !at.plan && tag.text) at.plan = tag.text;
         break;
       }
     }
@@ -191,7 +202,7 @@ export async function assemblePastYou(store: MemoryStore, p: PromiseRow, attempt
 // ---------- Decision / outcome ----------
 const FOLLOW_UP_MS = Number(process.env.FOLLOW_UP_MS) || 24 * 3600 * 1000;
 
-export async function recordDecision(store: MemoryStore, p: PromiseRow, a: AttemptRow, result: "held" | "exited", exitTx?: string) {
+export async function recordDecision(store: MemoryStore, p: PromiseRow, a: AttemptRow, result: "held" | "exited", exitTx?: string, extra: { withdrawReason?: string; plan?: string } = {}) {
   if (a.state !== "open") throw new HttpError(409, "Decision already recorded for this attempt");
   if (result === "exited" && !exitTx) throw new HttpError(400, "exitTx is required when result is exited");
   const followUp = result === "exited" ? Date.now() + FOLLOW_UP_MS : null;
@@ -200,6 +211,10 @@ export async function recordDecision(store: MemoryStore, p: PromiseRow, a: Attem
     if (result === "exited") await t.run("UPDATE promises SET status = 'exiting' WHERE id = ?", [p.id]);
   });
   await store.write(p.namespace, formatTag("decision", { attempt: a.number, result }), { wait: false });
+  if (result === "exited") {
+    if (extra.withdrawReason?.trim()) await store.write(p.namespace, formatTag("withdraw", { attempt: a.number }, extra.withdrawReason.trim()), { wait: false });
+    if (extra.plan?.trim()) await store.write(p.namespace, formatTag("plan", { attempt: a.number }, extra.plan.trim()), { wait: false });
+  }
   return { attemptNumber: a.number, followUpAt: followUp ? new Date(followUp).toISOString() : null };
 }
 
@@ -224,4 +239,34 @@ export async function listMemories(store: MemoryStore, ns: string): Promise<Memo
 export async function recordHabitCheck(store: MemoryStore, p: PromiseRow, week: number, result: "kept" | "missed" | "unknown", note?: string) {
   const w = await store.write(p.namespace, formatTag("habit", { week, result }, note), { wait: false });
   return { blobId: w.blobId };
+}
+
+// ---------- Insights ----------
+/** Pure: counts from attempts (shared with the demo). */
+export function insightsStats(attempts: InsightAttempt[]): InsightsDTO["stats"] {
+  const by = new Map<Trigger, number>();
+  for (const a of attempts) by.set(a.trigger, (by.get(a.trigger) ?? 0) + 1);
+  return {
+    attempts: attempts.length,
+    held: attempts.filter((a) => a.result === "held").length,
+    exited: attempts.filter((a) => a.result === "exited").length,
+    regretted: attempts.filter((a) => a.felt === "regret").length,
+    byTrigger: [...by.entries()].map(([trigger, count]) => ({ trigger, count })).sort((x, y) => y.count - x.count),
+  };
+}
+
+/** The user's saving reasons next to every attempt to leave, from Walrus Memory, plus where withdrawn money went (Tatum). */
+export async function buildInsights(store: MemoryStore, p: PromiseRow): Promise<InsightsDTO> {
+  const [mem, rows] = await Promise.all([loadPromiseMem(store, p.namespace), dbAttempts(p.id)]);
+  const byNumber = new Map(rows.map((r) => [r.number, r]));
+  const attempts: InsightAttempt[] = [];
+  for (const a of [...mem.attempts.values()].sort((x, y) => x.number - y.number)) {
+    const row = byNumber.get(a.number);
+    const result = a.result ?? (row?.state === "held" || row?.state === "exited" ? row.state : "pending");
+    const exitTx = row?.exit_tx ?? undefined;
+    const wentTo = result === "exited" ? (a.finding ?? (exitTx ? await exitFinding(p.owner, exitTx) : undefined)) : undefined;
+    attempts.push({ number: a.number, at: a.at, trigger: a.trigger, urge: a.urge, withdrawReason: a.withdrawReason, plan: a.plan, result, felt: a.felt, wentTo, exitTx });
+  }
+  const goal = mem.reasons.map((r) => ({ text: r.text, date: r.createdAt }));
+  return { goal, attempts, stats: insightsStats(attempts) };
 }

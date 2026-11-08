@@ -1,10 +1,11 @@
 // Memory tag format: `[kind k=v k=v] free text`. The tag is machine-owned; text after it is stored verbatim.
-export type TagKind = "reason" | "urge" | "shown" | "decision" | "outcome" | "habit";
-export const TAG_KINDS: TagKind[] = ["reason", "urge", "shown", "decision", "outcome", "habit"];
+// withdraw: why the user withdrew, in their words. plan: where they said the money would go.
+export type TagKind = "reason" | "urge" | "shown" | "decision" | "outcome" | "habit" | "withdraw" | "plan";
+export const TAG_KINDS: TagKind[] = ["reason", "urge", "shown", "decision", "outcome", "habit", "withdraw", "plan"];
 
 export interface ParsedTag { kind: TagKind; attrs: Record<string, string>; text: string }
 
-const TAG_RE = /^\[(reason|urge|shown|decision|outcome|habit)((?:[ \t]+[a-z_]+=[^\s\]]*)*)\][ \t]?([\s\S]*)$/;
+const TAG_RE = /^\[(reason|urge|shown|decision|outcome|habit|withdraw|plan)((?:[ \t]+[a-z_]+=[^\s\]]*)*)\][ \t]?([\s\S]*)$/;
 const ATTR_RE = /([a-z_]+)=([^\s\]]*)/g;
 const SAFE_VALUE = /^[A-Za-z0-9_.,:-]*$/;
 
