@@ -50,9 +50,6 @@ a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
 ::selection { background: var(--accent-soft); }
 
-.skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--paper); padding: .5rem 1rem; z-index: 10; }
-.skip:focus { left: 8px; top: 8px; }
-
 .page { width: 100%; max-width: 42rem; margin: 0 auto; padding: 0 1rem 5rem; }
 .page.wide { max-width: 56rem; }
 .siteHeader { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 0 .6rem; max-width: 56rem; margin: 0 auto; width: 100%; padding-inline: 1rem; }

@@ -21,7 +21,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable}`}>
       <body>
-        <a className="skip" href="#main">Skip to content</a>
         <Providers>
           <SiteHeader />
           <main id="main">{children}</main>
