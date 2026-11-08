@@ -229,10 +229,12 @@ mysten-dapp-kit-connect-button::part(trigger) { border-radius: 999px; }
    Gray is the default for supporting text. Black (--ink) is reserved for what matters most on a screen:
    headings, the quote, the timer, labels, buttons and inputs. Lightest gray (--ink-faint) is for meta details. */
 h1, h2, h3, label, .label, strong, b, .brand, .display, .timer, blockquote, .big-serif, .mockQuote, .mockTimer,
-.btn, input, select, textarea, summary:hover { color: var(--ink); }
+input, select, textarea, summary:hover { color: var(--ink); }
+.btn { color: var(--paper); }
 .btn.quiet, .btn.text { color: var(--ink-soft); }
 .btn.quiet:hover:not(:disabled), .btn.text:hover:not(:disabled) { color: var(--ink); }
 .btn:disabled { color: var(--ink-faint); }
 .notice strong { color: var(--ink); }
 .table td, .table th { color: var(--ink-soft); }
 .table .first, .first { color: var(--accent); }
+.storyLine { max-width: 34rem; font-size: .95rem; }

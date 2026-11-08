@@ -10,8 +10,9 @@ export default function Landing() {
         <p className="eyebrow">A savings lock that talks you out of quitting</p>
         <h1 className="display">Keep the promise you made to yourself.</h1>
         <p className="lede">
-          Lock some money until a date and write why it matters. If you try to take it out early, you wait a short timer and read your own words first. No lectures, just you.
+          Maya locked 400 SUI for a year of breathing room. Three weeks in, a bad month made her want it back. Past You showed her what she wrote the day she started. She waited out the timer, and kept her promise.
         </p>
+        <p className="faint storyLine">You lock money and write why. If you try to leave early, you wait and read your own words first.</p>
         <div className="row">
           <Link className="btn" href="/promise/new">Start a promise</Link>
           <Link className="btn quiet" href="/demo">See how it works</Link>
